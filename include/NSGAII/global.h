@@ -65,6 +65,7 @@ individual;
 typedef struct
 {
     individual *ind;
+    int generation;
 }
 population;
 

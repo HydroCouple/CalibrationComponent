@@ -467,11 +467,11 @@ void CalibrationComponent::createInputs()
 
 void CalibrationComponent::createCalibrationComponentsInput()
 {
-  m_triggerComponentInput = new TriggerComponentInput("TriggerComponentConnection",this);
-  m_triggerComponentInput->setCaption("Trigger Component Input");
-  m_triggerComponentInput->setDescription("Any output from the trigger component must be connected to this input");
+//  m_triggerComponentInput = new TriggerComponentInput("TriggerComponentConnection",this);
+//  m_triggerComponentInput->setCaption("Trigger Component Input");
+//  m_triggerComponentInput->setDescription("Any output from the trigger component must be connected to this input");
 
-  addInput(m_triggerComponentInput);
+//  addInput(m_triggerComponentInput);
 }
 
 void CalibrationComponent::createObjectiveFunctionInputs()

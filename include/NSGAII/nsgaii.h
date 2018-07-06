@@ -113,11 +113,11 @@ class CALIBRATIONCOMPONENT_EXPORT NSGAIIAlgorithm : public OptimizationAlgorithm
 
     bool m_isDone;
 
-    QString m_inputFile1,
-    m_inputFile2,
-    m_inputFile3,
-    m_inputFile4,
-    m_inputFile5;
+    QString m_inputFile1, // Initial population
+            m_inputFile2, // Final population
+            m_inputFile3, // Final feasible population
+            m_inputFile4, // All populations
+            m_inputFile5; // Model parameters
 
     QRegExp m_delimiters;
 

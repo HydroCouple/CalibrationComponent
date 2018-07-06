@@ -1,7 +1,6 @@
 #ifndef CALIBRATIONCOMPONENT_H
 #define CALIBRATIONCOMPONENT_H
 
-#include "stdafx.h"
 #include "calibrationcomponent.h"
 #include "calibrationcomponent_global.h"
 #include "core/abstractmodelcomponent.h"
@@ -24,6 +23,10 @@ namespace Composition
 class CALIBRATIONCOMPONENT_EXPORT CalibrationComponent : public AbstractModelComponent,
     public virtual HydroCouple::ICloneableModelComponent
 {
+
+    Q_OBJECT
+
+    Q_INTERFACES(HydroCouple::ICloneableModelComponent)
 
   public:
 

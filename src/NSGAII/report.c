@@ -16,14 +16,14 @@ void report_pop (NSGAIIProject *project,  population *pop, FILE *fpt)
   {
     for (j= 0; j <  project->nobj; j++)
     {
-      fprintf(fpt,"%e\t",pop->ind[i].obj[j]);
+      fprintf(fpt,"%e, ",pop->ind[i].obj[j]);
     }
 
     if ( project->ncon > 0)
     {
       for (j = 0; j <  project->ncon; j++)
       {
-        fprintf(fpt,"%e\t",pop->ind[i].constr[j]);
+        fprintf(fpt,"%e, ",pop->ind[i].constr[j]);
       }
     }
 
@@ -31,7 +31,7 @@ void report_pop (NSGAIIProject *project,  population *pop, FILE *fpt)
     {
       for (j = 0; j <  project->nreal ; j++)
       {
-        fprintf(fpt,"%e\t",pop->ind[i].xreal[j]);
+        fprintf(fpt,"%e, ",pop->ind[i].xreal[j]);
       }
     }
 
@@ -41,14 +41,15 @@ void report_pop (NSGAIIProject *project,  population *pop, FILE *fpt)
       {
         for (k = 0; k <  project->nbits[j]; k++)
         {
-          fprintf(fpt,"%d\t",pop->ind[i].gene[j][k]);
+          fprintf(fpt,"%d, ",pop->ind[i].gene[j][k]);
         }
       }
     }
 
-    fprintf(fpt,"%e\t",pop->ind[i].constr_violation);
-    fprintf(fpt,"%d\t",pop->ind[i].rank);
-    fprintf(fpt,"%e\n",pop->ind[i].crowd_dist);
+    fprintf(fpt,"%e, ",pop->ind[i].constr_violation);
+    fprintf(fpt,"%d, ",pop->ind[i].rank);
+    fprintf(fpt,"%e, ",pop->ind[i].crowd_dist);
+    fprintf(fpt,"%d\n",pop->generation);
 
   }
 
@@ -66,20 +67,20 @@ void report_feasible (NSGAIIProject *project,  population *pop, FILE *fpt)
     {
       for (j = 0; j <  project->nobj; j++)
       {
-        fprintf(fpt,"%e\t",pop->ind[i].obj[j]);
+        fprintf(fpt,"%e, ",pop->ind[i].obj[j]);
       }
       if ( project->ncon > 0)
       {
         for (j=0; j< project->ncon; j++)
         {
-          fprintf(fpt,"%e\t",pop->ind[i].constr[j]);
+          fprintf(fpt,"%e, ",pop->ind[i].constr[j]);
         }
       }
       if ( project->nreal > 0)
       {
         for (j=0; j< project->nreal; j++)
         {
-          fprintf(fpt,"%e\t",pop->ind[i].xreal[j]);
+          fprintf(fpt,"%e, ",pop->ind[i].xreal[j]);
         }
       }
       if ( project->nbin > 0)
@@ -88,13 +89,13 @@ void report_feasible (NSGAIIProject *project,  population *pop, FILE *fpt)
         {
           for (k=0; k< project->nbits[j]; k++)
           {
-            fprintf(fpt,"%d\t",pop->ind[i].gene[j][k]);
+            fprintf(fpt,"%d, ",pop->ind[i].gene[j][k]);
           }
         }
       }
 
-      fprintf(fpt,"%e\t",pop->ind[i].constr_violation);
-      fprintf(fpt,"%d\t",pop->ind[i].rank);
+      fprintf(fpt,"%e, ",pop->ind[i].constr_violation);
+      fprintf(fpt,"%d, ",pop->ind[i].rank);
       fprintf(fpt,"%e\n",pop->ind[i].crowd_dist);
     }
   }

@@ -640,6 +640,10 @@ bool NSGAIIAlgorithm::initialize(QStringList &errors)
   child_pop  = (population*) malloc(sizeof(population));
   mixed_pop  = (population*) malloc(sizeof(population));
 
+  parent_pop->generation = m_NSGAIIProject->currentGen;
+  child_pop->generation = m_NSGAIIProject->currentGen;
+  mixed_pop->generation = m_NSGAIIProject->currentGen;
+
   allocate_memory_pop(m_NSGAIIProject, parent_pop, m_NSGAIIProject->popsize);
   allocate_memory_pop(m_NSGAIIProject, child_pop, m_NSGAIIProject->popsize);
   allocate_memory_pop(m_NSGAIIProject, mixed_pop, 2 * m_NSGAIIProject->popsize);
@@ -705,7 +709,9 @@ bool NSGAIIAlgorithm::processEvaluationOutput(QStringList &errors)
       }
 
       m_NSGAIIProject->currentGen++;
-
+      parent_pop->generation = m_NSGAIIProject->currentGen;
+      child_pop->generation = m_NSGAIIProject->currentGen;
+      mixed_pop->generation = m_NSGAIIProject->currentGen;
     }
     else
     {
@@ -719,9 +725,13 @@ bool NSGAIIAlgorithm::processEvaluationOutput(QStringList &errors)
       if(m_NSGAIIProject->fpt4)
       {
         report_pop(m_NSGAIIProject, parent_pop, m_NSGAIIProject->fpt4);
+        fflush(m_NSGAIIProject->fpt4);
       }
 
       m_NSGAIIProject->currentGen++;
+      parent_pop->generation = m_NSGAIIProject->currentGen;
+      child_pop->generation = m_NSGAIIProject->currentGen;
+      mixed_pop->generation = m_NSGAIIProject->currentGen;
 
       if(m_NSGAIIProject->currentGen == m_NSGAIIProject->ngen - 1)
       {
@@ -832,7 +842,7 @@ bool NSGAIIAlgorithm::initializeOutputFiles(QStringList &errors)
       {
         m_NSGAIIProject->fpt1 = fopen(inputFile1.absoluteFilePath().toStdString().c_str(),"w");
         fprintf(m_NSGAIIProject->fpt1, "# This file contains the data of initial population\n");
-        fprintf(m_NSGAIIProject->fpt1, "# of objectives = %d, # of constraints = %d, # of real_var = %d, # of bits of bin_var = %d, constr_violation, rank, crowding_distance\n",
+        fprintf(m_NSGAIIProject->fpt1, "# of objectives = %d, # of constraints = %d, # of real_var = %d, # of bits of bin_var = %d, constr_violation, rank, crowding_distance, generation\n",
                 m_NSGAIIProject->nobj, m_NSGAIIProject->ncon, m_NSGAIIProject->nreal, m_NSGAIIProject->bitlength);
 
         printCustomHeader(m_NSGAIIProject->fpt1);
@@ -856,7 +866,7 @@ bool NSGAIIAlgorithm::initializeOutputFiles(QStringList &errors)
       {
         m_NSGAIIProject->fpt2 = fopen(inputFile2.absoluteFilePath().toStdString().c_str(),"w");
         fprintf(m_NSGAIIProject->fpt2, "# This file contains the data of final population\n");
-        fprintf(m_NSGAIIProject->fpt2, "# of objectives = %d, # of constraints = %d, # of real_var = %d, # of bits of bin_var = %d, constr_violation, rank, crowding_distance\n",
+        fprintf(m_NSGAIIProject->fpt2, "# of objectives = %d, # of constraints = %d, # of real_var = %d, # of bits of bin_var = %d, constr_violation, rank, crowding_distance, generation\n",
                 m_NSGAIIProject->nobj, m_NSGAIIProject->ncon, m_NSGAIIProject->nreal, m_NSGAIIProject->bitlength);
 
         printCustomHeader(m_NSGAIIProject->fpt2);
@@ -880,7 +890,7 @@ bool NSGAIIAlgorithm::initializeOutputFiles(QStringList &errors)
       {
         m_NSGAIIProject->fpt3 = fopen(inputFile3.absoluteFilePath().toStdString().c_str(),"w");
         fprintf(m_NSGAIIProject->fpt3, "# This file contains the data of final feasible population (if found)\n");
-        fprintf(m_NSGAIIProject->fpt3, "# of objectives = %d, # of constraints = %d, # of real_var = %d, # of bits of bin_var = %d, constr_violation, rank, crowding_distance\n",
+        fprintf(m_NSGAIIProject->fpt3, "# of objectives = %d, # of constraints = %d, # of real_var = %d, # of bits of bin_var = %d, constr_violation, rank, crowding_distance, generation\n",
                 m_NSGAIIProject->nobj, m_NSGAIIProject->ncon, m_NSGAIIProject->nreal, m_NSGAIIProject->bitlength);
         printCustomHeader(m_NSGAIIProject->fpt3);
         fflush(m_NSGAIIProject->fpt3);
@@ -908,7 +918,7 @@ bool NSGAIIAlgorithm::initializeOutputFiles(QStringList &errors)
       {
         m_NSGAIIProject->fpt4 = fopen(inputFile4.absoluteFilePath().toStdString().c_str(),"w");
         fprintf(m_NSGAIIProject->fpt4, "# This file contains the data of all generations\n");
-        fprintf(m_NSGAIIProject->fpt4, "# of objectives = %d, # of constraints = %d, # of real_var = %d, # of bits of bin_var = %d, constr_violation, rank, crowding_distance\n",
+        fprintf(m_NSGAIIProject->fpt4, "# of objectives = %d, # of constraints = %d, # of real_var = %d, # of bits of bin_var = %d, constr_violation, rank, crowding_distance, generation\n",
                 m_NSGAIIProject->nobj, m_NSGAIIProject->ncon, m_NSGAIIProject->nreal, m_NSGAIIProject->bitlength);
         printCustomHeader(m_NSGAIIProject->fpt4);
         fflush(m_NSGAIIProject->fpt4);
@@ -993,22 +1003,22 @@ void NSGAIIAlgorithm::printCustomHeader(FILE *file)
   for(int i = 0 ; i < nobj ; i++)
   {
      QString name = m_objectiveNames[i];
-     fprintf(file, "Objective_%i-%s\t", i+1, name.toStdString().c_str());
+     fprintf(file, "Objective_%i-%s, ", i+1, name.toStdString().c_str());
   }
 
   for(int i = 0; i < ncon; i++)
   {
     QString name = m_constraintNames[i];
-    fprintf(file, "Constraint_%i-%s\t", i+1, name.toStdString().c_str());
+    fprintf(file, "Constraint_%i-%s, ", i+1, name.toStdString().c_str());
   }
 
   for(int i = 0; i < nreal; i++)
   {
     QString name = m_variableNames[i];
-    fprintf(file, "Variables_%i-%s\t", i+1, name.toStdString().c_str());
+    fprintf(file, "Variables_%i-%s, ", i+1, name.toStdString().c_str());
   }
 
-  fprintf(file, "constr_violation\trank\tcrowding_distance\n");
+  fprintf(file, "constr_violation, rank, crowding_distance, generation\n");
 }
 
 void NSGAIIAlgorithm::deleteProject()
