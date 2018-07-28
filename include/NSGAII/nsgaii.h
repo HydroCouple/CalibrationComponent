@@ -99,9 +99,9 @@ class CALIBRATIONCOMPONENT_EXPORT NSGAIIAlgorithm : public OptimizationAlgorithm
     population *parent_pop;
     population *child_pop;
     population *mixed_pop;
-    static const std::unordered_map<std::string, int> m_inputFileFlags,
-    m_optionsFlags,
-    m_outputFileFlags;
+    static const std::unordered_map<std::string, int> m_inputFileFlags;
+    static const std::unordered_map<std::string, int> m_optionsFlags;
+    static const std::unordered_map<std::string, int> m_outputFileFlags;
 
     std::vector<QString> m_variableNames,
     m_objectiveNames,
