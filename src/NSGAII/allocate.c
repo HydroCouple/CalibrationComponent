@@ -27,11 +27,11 @@ void allocate_memory_project(NSGAIIProject **project)
     (*project)->bitlength = 0;
     (*project)->currentGen = 0;
     (*project)->max_nbits = 0;
-    (*project)->fpt1 = NULL;
-    (*project)->fpt2 = NULL;
-    (*project)->fpt3 = NULL;
-    (*project)->fpt4 = NULL;
-    (*project)->fpt5 = NULL;
+    (*project)->fpt_initialPop = NULL;
+    (*project)->fpt_finalPop = NULL;
+    (*project)->fpt_finalFeasiblePop = NULL;
+    (*project)->fpt_allPop = NULL;
+    (*project)->fpt_modelParams = NULL;
 }
 
 void deallocate_memory_project(NSGAIIProject *project)
@@ -51,34 +51,34 @@ void deallocate_memory_project(NSGAIIProject *project)
       free(project->nbits); project->nbits = NULL;
     }
 
-    if(project->fpt1)
+    if(project->fpt_initialPop)
     {
-      fflush(project->fpt1);
-      fclose(project->fpt1);
+      fflush(project->fpt_initialPop);
+      fclose(project->fpt_initialPop);
     }
 
-    if(project->fpt2)
+    if(project->fpt_finalPop)
     {
-      fflush(project->fpt2);
-      fclose(project->fpt2);
+      fflush(project->fpt_finalPop);
+      fclose(project->fpt_finalPop);
     }
 
-    if(project->fpt3)
+    if(project->fpt_finalFeasiblePop)
     {
-      fflush(project->fpt3);
-      fclose(project->fpt3);
+      fflush(project->fpt_finalFeasiblePop);
+      fclose(project->fpt_finalFeasiblePop);
     }
 
-    if(project->fpt4)
+    if(project->fpt_allPop)
     {
-      fflush(project->fpt4);
-      fclose(project->fpt4);
+      fflush(project->fpt_allPop);
+      fclose(project->fpt_allPop);
     }
 
-    if(project->fpt5)
+    if(project->fpt_modelParams)
     {
-      fflush(project->fpt5);
-      fclose(project->fpt5);
+      fflush(project->fpt_modelParams);
+      fclose(project->fpt_modelParams);
     }
 
     free(project);

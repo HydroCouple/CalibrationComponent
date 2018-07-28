@@ -9,10 +9,10 @@
 extern "C" {
 #endif
 
-# define INF 1.0e14
-# define EPS 1.0e-14
-# define E  2.71828182845905
-# define PI 3.14159265358979
+#define INF 1.0e14
+#define EPS 1.0e-14
+#define EE  2.71828182845905
+#define PI 3.14159265358979
 
 //added to encapsulate variables
 typedef struct NSGAIIProject
@@ -41,17 +41,18 @@ typedef struct NSGAIIProject
     int bitlength;
     int currentGen;
     int max_nbits;
-    FILE *fpt1;
-    FILE *fpt2;
-    FILE *fpt3;
-    FILE *fpt4;
-    FILE *fpt5;
+    FILE *fpt_initialPop;
+    FILE *fpt_finalPop;
+    FILE *fpt_finalFeasiblePop;
+    FILE *fpt_allPop;
+    FILE *fpt_modelParams;
 }NSGAIIProject;
 
 
 typedef struct
 {
     int rank;
+    int index;
     double constr_violation;
     double *xreal;
     int **gene;

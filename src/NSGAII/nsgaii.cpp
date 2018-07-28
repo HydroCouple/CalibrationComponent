@@ -161,11 +161,11 @@ void NSGAIIAlgorithm::prepareForInputFileRead()
     free(mixed_pop); mixed_pop = NULL;
   }
 
-  m_inputFile1 = "";
-  m_inputFile2 = "";
-  m_inputFile3 = "";
-  m_inputFile4 = "";
-  m_inputFile5 = "";
+  m_inputFileInitialPop = "";
+  m_inputFileFinalPop = "";
+  m_inputFileFinalFeasiblePop = "";
+  m_inputFileAllPop = "";
+  m_inputFileModelParams = "";
 
   m_variableNames.clear();
   m_objectiveNames.clear();
@@ -333,19 +333,19 @@ bool NSGAIIAlgorithm::processInputFileLine(const QString &currentFlag, const QSt
           switch (fileFlag)
           {
             case 1:
-              m_inputFile1 = cols[1];
+              m_inputFileInitialPop = cols[1];
               break;
             case 2:
-              m_inputFile2 = cols[1];
+              m_inputFileFinalPop = cols[1];
               break;
             case 3:
-              m_inputFile3 = cols[1];
+              m_inputFileFinalFeasiblePop = cols[1];
               break;
             case 4:
-              m_inputFile4 = cols[1];
+              m_inputFileAllPop = cols[1];
               break;
             case 5:
-              m_inputFile5 = cols[1];
+              m_inputFileModelParams = cols[1];
               break;
           }
         }
@@ -695,23 +695,18 @@ bool NSGAIIAlgorithm::processEvaluationOutput(QStringList &errors)
 
       assign_rank_and_crowding_distance(m_NSGAIIProject, parent_pop);
 
-      if(m_NSGAIIProject->fpt1)
+      if(m_NSGAIIProject->fpt_initialPop)
       {
-        report_pop(m_NSGAIIProject, parent_pop, m_NSGAIIProject->fpt1);
-        fflush(m_NSGAIIProject->fpt1);
+        report_pop(m_NSGAIIProject, parent_pop, m_NSGAIIProject->fpt_initialPop);
+        fflush(m_NSGAIIProject->fpt_initialPop);
 
       }
 
-      if(m_NSGAIIProject->fpt4)
+      if(m_NSGAIIProject->fpt_allPop)
       {
-        report_pop(m_NSGAIIProject, parent_pop, m_NSGAIIProject->fpt4);
-        fflush(m_NSGAIIProject->fpt4);
+        report_pop(m_NSGAIIProject, parent_pop, m_NSGAIIProject->fpt_allPop);
+        fflush(m_NSGAIIProject->fpt_allPop);
       }
-
-      m_NSGAIIProject->currentGen++;
-      parent_pop->generation = m_NSGAIIProject->currentGen;
-      child_pop->generation = m_NSGAIIProject->currentGen;
-      mixed_pop->generation = m_NSGAIIProject->currentGen;
     }
     else
     {
@@ -722,52 +717,52 @@ bool NSGAIIAlgorithm::processEvaluationOutput(QStringList &errors)
 
       fill_nondominated_sort(m_NSGAIIProject, mixed_pop, parent_pop);
 
-      if(m_NSGAIIProject->fpt4)
+      if(m_NSGAIIProject->fpt_allPop)
       {
-        report_pop(m_NSGAIIProject, parent_pop, m_NSGAIIProject->fpt4);
-        fflush(m_NSGAIIProject->fpt4);
-      }
-
-      m_NSGAIIProject->currentGen++;
-      parent_pop->generation = m_NSGAIIProject->currentGen;
-      child_pop->generation = m_NSGAIIProject->currentGen;
-      mixed_pop->generation = m_NSGAIIProject->currentGen;
-
-      if(m_NSGAIIProject->currentGen == m_NSGAIIProject->ngen - 1)
-      {
-
-        report_pop(m_NSGAIIProject, parent_pop, m_NSGAIIProject->fpt2);
-        report_feasible(m_NSGAIIProject, parent_pop, m_NSGAIIProject->fpt3);
-
-        if (m_NSGAIIProject->nreal > 0)
-        {
-          fprintf(m_NSGAIIProject->fpt5, "\n Number of crossover of real variable = %d", m_NSGAIIProject->nrealcross);
-          fprintf(m_NSGAIIProject->fpt5, "\n Number of mutation of real variable = %d", m_NSGAIIProject->nrealmut);
-        }
-
-        if (m_NSGAIIProject->nbin > 0)
-        {
-          fprintf(m_NSGAIIProject->fpt5, "\n Number of crossover of binary variable = %d", m_NSGAIIProject->nbincross);
-          fprintf(m_NSGAIIProject->fpt5, "\n Number of mutation of binary variable = %d", m_NSGAIIProject->nbinmut);
-        }
-
-        if(m_NSGAIIProject->fpt4)
-        fflush(m_NSGAIIProject->fpt4);
-
-        if(m_NSGAIIProject->fpt2)
-        fflush(m_NSGAIIProject->fpt2);
-
-        if(m_NSGAIIProject->fpt3)
-        fflush(m_NSGAIIProject->fpt3);
-
-        if(m_NSGAIIProject->fpt5)
-        fflush(m_NSGAIIProject->fpt5);
-
-        m_isDone = true;
+        report_pop(m_NSGAIIProject, parent_pop, m_NSGAIIProject->fpt_allPop);
+        fflush(m_NSGAIIProject->fpt_allPop);
       }
     }
 
-    progress()->performStep(m_NSGAIIProject->currentGen + 1);
+    m_NSGAIIProject->currentGen++;
+    parent_pop->generation = m_NSGAIIProject->currentGen;
+    child_pop->generation = m_NSGAIIProject->currentGen;
+    mixed_pop->generation = m_NSGAIIProject->currentGen;
+
+    if(m_NSGAIIProject->currentGen == m_NSGAIIProject->ngen)
+    {
+
+      report_pop(m_NSGAIIProject, parent_pop, m_NSGAIIProject->fpt_finalPop);
+      report_feasible(m_NSGAIIProject, parent_pop, m_NSGAIIProject->fpt_finalFeasiblePop);
+
+      if (m_NSGAIIProject->nreal > 0)
+      {
+        fprintf(m_NSGAIIProject->fpt_modelParams, "\n Number of crossover of real variable = %d", m_NSGAIIProject->nrealcross);
+        fprintf(m_NSGAIIProject->fpt_modelParams, "\n Number of mutation of real variable = %d", m_NSGAIIProject->nrealmut);
+      }
+
+      if (m_NSGAIIProject->nbin > 0)
+      {
+        fprintf(m_NSGAIIProject->fpt_modelParams, "\n Number of crossover of binary variable = %d", m_NSGAIIProject->nbincross);
+        fprintf(m_NSGAIIProject->fpt_modelParams, "\n Number of mutation of binary variable = %d", m_NSGAIIProject->nbinmut);
+      }
+
+      if(m_NSGAIIProject->fpt_allPop)
+      fflush(m_NSGAIIProject->fpt_allPop);
+
+      if(m_NSGAIIProject->fpt_finalPop)
+      fflush(m_NSGAIIProject->fpt_finalPop);
+
+      if(m_NSGAIIProject->fpt_finalFeasiblePop)
+      fflush(m_NSGAIIProject->fpt_finalFeasiblePop);
+
+      if(m_NSGAIIProject->fpt_modelParams)
+      fflush(m_NSGAIIProject->fpt_modelParams);
+
+      m_isDone = true;
+    }
+
+    progress()->performStep(m_NSGAIIProject->currentGen);
 
     return true;
   }
@@ -781,24 +776,24 @@ bool NSGAIIAlgorithm::finalize(QStringList &errors)
 
   if(parent_pop)
   {
-    if(m_NSGAIIProject->fpt2)
-      report_pop(m_NSGAIIProject, parent_pop, m_NSGAIIProject->fpt2);
+    if(m_NSGAIIProject->fpt_finalPop)
+      report_pop(m_NSGAIIProject, parent_pop, m_NSGAIIProject->fpt_finalPop);
 
-    if(m_NSGAIIProject->fpt2)
-      report_feasible(m_NSGAIIProject, parent_pop, m_NSGAIIProject->fpt3);
+    if(m_NSGAIIProject->fpt_finalPop)
+      report_feasible(m_NSGAIIProject, parent_pop, m_NSGAIIProject->fpt_finalFeasiblePop);
 
-    if(m_NSGAIIProject->fpt5)
+    if(m_NSGAIIProject->fpt_modelParams)
     {
       if (m_NSGAIIProject->nreal > 0)
       {
-        fprintf(m_NSGAIIProject->fpt5, "\n Number of crossover of real variable = %d", m_NSGAIIProject->nrealcross);
-        fprintf(m_NSGAIIProject->fpt5, "\n Number of mutation of real variable = %d", m_NSGAIIProject->nrealmut);
+        fprintf(m_NSGAIIProject->fpt_modelParams, "\n Number of crossover of real variable = %d", m_NSGAIIProject->nrealcross);
+        fprintf(m_NSGAIIProject->fpt_modelParams, "\n Number of mutation of real variable = %d", m_NSGAIIProject->nrealmut);
       }
 
       if (m_NSGAIIProject->nbin > 0 )
       {
-        fprintf(m_NSGAIIProject->fpt5, "\n Number of crossover of binary variable = %d", m_NSGAIIProject->nbincross);
-        fprintf(m_NSGAIIProject->fpt5, "\n Number of mutation of binary variable = %d", m_NSGAIIProject->nbinmut);
+        fprintf(m_NSGAIIProject->fpt_modelParams, "\n Number of crossover of binary variable = %d", m_NSGAIIProject->nbincross);
+        fprintf(m_NSGAIIProject->fpt_modelParams, "\n Number of mutation of binary variable = %d", m_NSGAIIProject->nbinmut);
       }
     }
 
@@ -831,22 +826,25 @@ bool NSGAIIAlgorithm::initializeOutputFiles(QStringList &errors)
 {
   if(m_NSGAIIProject)
   {
-    if(!m_inputFile1.isEmpty())
+    if(!m_inputFileInitialPop.isEmpty())
     {
-      QFileInfo inputFile1(m_inputFile1);
+      QFileInfo inputFile1(m_inputFileInitialPop);
 
       if(inputFile1.isRelative())
-        inputFile1 = getAbsoluteFilePath(m_inputFile1);
+        inputFile1 = getAbsoluteFilePath(m_inputFileInitialPop);
 
-      if(inputFile1.absoluteDir().exists())
+      if(inputFile1.absoluteDir().exists() )
       {
-        m_NSGAIIProject->fpt1 = fopen(inputFile1.absoluteFilePath().toStdString().c_str(),"w");
-        fprintf(m_NSGAIIProject->fpt1, "# This file contains the data of initial population\n");
-        fprintf(m_NSGAIIProject->fpt1, "# of objectives = %d, # of constraints = %d, # of real_var = %d, # of bits of bin_var = %d, constr_violation, rank, crowding_distance, generation\n",
+        if(inputFile1.isDir())
+          return true;
+
+        m_NSGAIIProject->fpt_initialPop = fopen(inputFile1.absoluteFilePath().toStdString().c_str(),"w");
+        fprintf(m_NSGAIIProject->fpt_initialPop, "# This file contains the data of initial population\n");
+        fprintf(m_NSGAIIProject->fpt_initialPop, "# of objectives = %d, # of constraints = %d, # of real_var = %d, # of bits of bin_var = %d, constr_violation, rank, crowding_distance, generation\n",
                 m_NSGAIIProject->nobj, m_NSGAIIProject->ncon, m_NSGAIIProject->nreal, m_NSGAIIProject->bitlength);
 
-        printCustomHeader(m_NSGAIIProject->fpt1);
-        fflush(m_NSGAIIProject->fpt1);
+        printCustomHeader(m_NSGAIIProject->fpt_initialPop);
+        fflush(m_NSGAIIProject->fpt_initialPop);
       }
       else
       {
@@ -855,22 +853,25 @@ bool NSGAIIAlgorithm::initializeOutputFiles(QStringList &errors)
       }
     }
 
-    if(!m_inputFile2.isEmpty())
+    if(!m_inputFileFinalPop.isEmpty())
     {
-      QFileInfo inputFile2(m_inputFile2);
+      QFileInfo inputFile2(m_inputFileFinalPop);
 
       if(inputFile2.isRelative())
-        inputFile2 = getAbsoluteFilePath(m_inputFile2);
+        inputFile2 = getAbsoluteFilePath(m_inputFileFinalPop);
 
       if(inputFile2.absoluteDir().exists())
       {
-        m_NSGAIIProject->fpt2 = fopen(inputFile2.absoluteFilePath().toStdString().c_str(),"w");
-        fprintf(m_NSGAIIProject->fpt2, "# This file contains the data of final population\n");
-        fprintf(m_NSGAIIProject->fpt2, "# of objectives = %d, # of constraints = %d, # of real_var = %d, # of bits of bin_var = %d, constr_violation, rank, crowding_distance, generation\n",
+        if(inputFile2.isDir())
+          return true;
+
+        m_NSGAIIProject->fpt_finalPop = fopen(inputFile2.absoluteFilePath().toStdString().c_str(),"w");
+        fprintf(m_NSGAIIProject->fpt_finalPop, "# This file contains the data of final population\n");
+        fprintf(m_NSGAIIProject->fpt_finalPop, "# of objectives = %d, # of constraints = %d, # of real_var = %d, # of bits of bin_var = %d, constr_violation, rank, crowding_distance, generation\n",
                 m_NSGAIIProject->nobj, m_NSGAIIProject->ncon, m_NSGAIIProject->nreal, m_NSGAIIProject->bitlength);
 
-        printCustomHeader(m_NSGAIIProject->fpt2);
-        fflush(m_NSGAIIProject->fpt2);
+        printCustomHeader(m_NSGAIIProject->fpt_finalPop);
+        fflush(m_NSGAIIProject->fpt_finalPop);
       }
       else
       {
@@ -879,21 +880,24 @@ bool NSGAIIAlgorithm::initializeOutputFiles(QStringList &errors)
       }
     }
 
-    if(!m_inputFile3.isEmpty())
+    if(!m_inputFileFinalFeasiblePop.isEmpty())
     {
-      QFileInfo inputFile3(m_inputFile3);
+      QFileInfo inputFile3(m_inputFileFinalFeasiblePop);
 
       if(inputFile3.isRelative())
-        inputFile3 = getAbsoluteFilePath(m_inputFile3);
+        inputFile3 = getAbsoluteFilePath(m_inputFileFinalFeasiblePop);
 
       if(inputFile3.absoluteDir().exists())
       {
-        m_NSGAIIProject->fpt3 = fopen(inputFile3.absoluteFilePath().toStdString().c_str(),"w");
-        fprintf(m_NSGAIIProject->fpt3, "# This file contains the data of final feasible population (if found)\n");
-        fprintf(m_NSGAIIProject->fpt3, "# of objectives = %d, # of constraints = %d, # of real_var = %d, # of bits of bin_var = %d, constr_violation, rank, crowding_distance, generation\n",
+        if(inputFile3.isDir())
+          return true;
+
+        m_NSGAIIProject->fpt_finalFeasiblePop = fopen(inputFile3.absoluteFilePath().toStdString().c_str(),"w");
+        fprintf(m_NSGAIIProject->fpt_finalFeasiblePop, "# This file contains the data of final feasible population (if found)\n");
+        fprintf(m_NSGAIIProject->fpt_finalFeasiblePop, "# of objectives = %d, # of constraints = %d, # of real_var = %d, # of bits of bin_var = %d, constr_violation, rank, crowding_distance, generation\n",
                 m_NSGAIIProject->nobj, m_NSGAIIProject->ncon, m_NSGAIIProject->nreal, m_NSGAIIProject->bitlength);
-        printCustomHeader(m_NSGAIIProject->fpt3);
-        fflush(m_NSGAIIProject->fpt3);
+        printCustomHeader(m_NSGAIIProject->fpt_finalFeasiblePop);
+        fflush(m_NSGAIIProject->fpt_finalFeasiblePop);
       }
       else
       {
@@ -907,21 +911,24 @@ bool NSGAIIAlgorithm::initializeOutputFiles(QStringList &errors)
       return false;
     }
 
-    if(!m_inputFile4.isEmpty())
+    if(!m_inputFileAllPop.isEmpty())
     {
-      QFileInfo inputFile4(m_inputFile4);
+      QFileInfo inputFile4(m_inputFileAllPop);
 
       if(inputFile4.isRelative())
-        inputFile4 = getAbsoluteFilePath(m_inputFile4);
+        inputFile4 = getAbsoluteFilePath(m_inputFileAllPop);
 
       if(inputFile4.absoluteDir().exists())
       {
-        m_NSGAIIProject->fpt4 = fopen(inputFile4.absoluteFilePath().toStdString().c_str(),"w");
-        fprintf(m_NSGAIIProject->fpt4, "# This file contains the data of all generations\n");
-        fprintf(m_NSGAIIProject->fpt4, "# of objectives = %d, # of constraints = %d, # of real_var = %d, # of bits of bin_var = %d, constr_violation, rank, crowding_distance, generation\n",
+        if(inputFile4.isDir())
+          return true;
+
+        m_NSGAIIProject->fpt_allPop = fopen(inputFile4.absoluteFilePath().toStdString().c_str(),"w");
+        fprintf(m_NSGAIIProject->fpt_allPop, "# This file contains the data of all generations\n");
+        fprintf(m_NSGAIIProject->fpt_allPop, "# of objectives = %d, # of constraints = %d, # of real_var = %d, # of bits of bin_var = %d, constr_violation, rank, crowding_distance, generation\n",
                 m_NSGAIIProject->nobj, m_NSGAIIProject->ncon, m_NSGAIIProject->nreal, m_NSGAIIProject->bitlength);
-        printCustomHeader(m_NSGAIIProject->fpt4);
-        fflush(m_NSGAIIProject->fpt4);
+        printCustomHeader(m_NSGAIIProject->fpt_allPop);
+        fflush(m_NSGAIIProject->fpt_allPop);
       }
       else
       {
@@ -930,57 +937,60 @@ bool NSGAIIAlgorithm::initializeOutputFiles(QStringList &errors)
       }
     }
 
-    if(!m_inputFile5.isEmpty())
+    if(!m_inputFileModelParams.isEmpty())
     {
-      QFileInfo inputFile5(m_inputFile5);
+      QFileInfo inputFile5(m_inputFileModelParams);
 
       if(inputFile5.isRelative())
-        inputFile5 = getAbsoluteFilePath(m_inputFile5);
+        inputFile5 = getAbsoluteFilePath(m_inputFileModelParams);
 
       if(inputFile5.absoluteDir().exists())
       {
-        m_NSGAIIProject->fpt5 = fopen(inputFile5.absoluteFilePath().toStdString().c_str(),"w");
-        fprintf(m_NSGAIIProject->fpt5, "# This file contains information about inputs as read by the program\n");
+        if(inputFile5.isDir())
+          return true;
+
+        m_NSGAIIProject->fpt_modelParams = fopen(inputFile5.absoluteFilePath().toStdString().c_str(),"w");
+        fprintf(m_NSGAIIProject->fpt_modelParams, "# This file contains information about inputs as read by the program\n");
 
         printf("\nInput data successfully read, now performing initialization\n");
-        fprintf(m_NSGAIIProject->fpt5, "\n Population size = %d", m_NSGAIIProject->popsize);
-        fprintf(m_NSGAIIProject->fpt5, "\n Number of generations = %d", m_NSGAIIProject->ngen);
-        fprintf(m_NSGAIIProject->fpt5, "\n Number of objective functions = %d", m_NSGAIIProject->nobj);
-        fprintf(m_NSGAIIProject->fpt5, "\n Number of constraints = %d", m_NSGAIIProject->ncon);
-        fprintf(m_NSGAIIProject->fpt5, "\n Number of real variables = %d", m_NSGAIIProject->nreal);
+        fprintf(m_NSGAIIProject->fpt_modelParams, "\n Population size = %d", m_NSGAIIProject->popsize);
+        fprintf(m_NSGAIIProject->fpt_modelParams, "\n Number of generations = %d", m_NSGAIIProject->ngen);
+        fprintf(m_NSGAIIProject->fpt_modelParams, "\n Number of objective functions = %d", m_NSGAIIProject->nobj);
+        fprintf(m_NSGAIIProject->fpt_modelParams, "\n Number of constraints = %d", m_NSGAIIProject->ncon);
+        fprintf(m_NSGAIIProject->fpt_modelParams, "\n Number of real variables = %d", m_NSGAIIProject->nreal);
 
         if (m_NSGAIIProject->nreal > 0)
         {
           for (int i = 0; i < m_NSGAIIProject->nreal; i++)
           {
-            fprintf(m_NSGAIIProject->fpt5, "\n Lower limit of real variable %d = %e", i + 1, m_NSGAIIProject->min_realvar[i]);
-            fprintf(m_NSGAIIProject->fpt5, "\n Upper limit of real variable %d = %e", i + 1, m_NSGAIIProject->max_realvar[i]);
+            fprintf(m_NSGAIIProject->fpt_modelParams, "\n Lower limit of real variable %d = %e", i + 1, m_NSGAIIProject->min_realvar[i]);
+            fprintf(m_NSGAIIProject->fpt_modelParams, "\n Upper limit of real variable %d = %e", i + 1, m_NSGAIIProject->max_realvar[i]);
           }
 
-          fprintf(m_NSGAIIProject->fpt5, "\n Probability of crossover of real variable = %e", m_NSGAIIProject->pcross_real);
-          fprintf(m_NSGAIIProject->fpt5, "\n Probability of mutation of real variable = %e", m_NSGAIIProject->pmut_real);
-          fprintf(m_NSGAIIProject->fpt5, "\n Distribution index for crossover = %e", m_NSGAIIProject->eta_c);
-          fprintf(m_NSGAIIProject->fpt5, "\n Distribution index for mutation = %e", m_NSGAIIProject->eta_m);
+          fprintf(m_NSGAIIProject->fpt_modelParams, "\n Probability of crossover of real variable = %e", m_NSGAIIProject->pcross_real);
+          fprintf(m_NSGAIIProject->fpt_modelParams, "\n Probability of mutation of real variable = %e", m_NSGAIIProject->pmut_real);
+          fprintf(m_NSGAIIProject->fpt_modelParams, "\n Distribution index for crossover = %e", m_NSGAIIProject->eta_c);
+          fprintf(m_NSGAIIProject->fpt_modelParams, "\n Distribution index for mutation = %e", m_NSGAIIProject->eta_m);
         }
 
-        fprintf(m_NSGAIIProject->fpt5, "\n Number of binary variables = %d", m_NSGAIIProject->nbin);
+        fprintf(m_NSGAIIProject->fpt_modelParams, "\n Number of binary variables = %d", m_NSGAIIProject->nbin);
 
         if (m_NSGAIIProject->nbin > 0)
         {
           for (int i = 0; i < m_NSGAIIProject->nbin; i++)
           {
-            fprintf(m_NSGAIIProject->fpt5, "\n Number of bits for binary variable %d = %d", i + 1, m_NSGAIIProject->nbits[i]);
-            fprintf(m_NSGAIIProject->fpt5, "\n Lower limit of binary variable %d = %e", i + 1, m_NSGAIIProject->min_binvar[i]);
-            fprintf(m_NSGAIIProject->fpt5, "\n Upper limit of binary variable %d = %e", i + 1, m_NSGAIIProject->max_binvar[i]);
+            fprintf(m_NSGAIIProject->fpt_modelParams, "\n Number of bits for binary variable %d = %d", i + 1, m_NSGAIIProject->nbits[i]);
+            fprintf(m_NSGAIIProject->fpt_modelParams, "\n Lower limit of binary variable %d = %e", i + 1, m_NSGAIIProject->min_binvar[i]);
+            fprintf(m_NSGAIIProject->fpt_modelParams, "\n Upper limit of binary variable %d = %e", i + 1, m_NSGAIIProject->max_binvar[i]);
           }
 
-          fprintf(m_NSGAIIProject->fpt5, "\n Probability of crossover of binary variable = %e", m_NSGAIIProject->pcross_bin);
-          fprintf(m_NSGAIIProject->fpt5, "\n Probability of mutation of binary variable = %e", m_NSGAIIProject->pmut_bin);
+          fprintf(m_NSGAIIProject->fpt_modelParams, "\n Probability of crossover of binary variable = %e", m_NSGAIIProject->pcross_bin);
+          fprintf(m_NSGAIIProject->fpt_modelParams, "\n Probability of mutation of binary variable = %e", m_NSGAIIProject->pmut_bin);
         }
 
-        fprintf(m_NSGAIIProject->fpt5, "\n Seed for random number generator = %e", seed);
+        fprintf(m_NSGAIIProject->fpt_modelParams, "\n Seed for random number generator = %e", seed);
 
-        fflush(m_NSGAIIProject->fpt5);
+        fflush(m_NSGAIIProject->fpt_modelParams);
 
       }
       else
@@ -998,7 +1008,7 @@ bool NSGAIIAlgorithm::initializeOutputFiles(QStringList &errors)
 
 void NSGAIIAlgorithm::printCustomHeader(FILE *file)
 {
-//  fprintf(m_NSGAIIProject->fpt5, "\n Number of mutation of binary variable = %d", m_NSGAIIProject->nbinmut);
+//  fprintf(m_NSGAIIProject->fpt_modelParams, "\n Number of mutation of binary variable = %d", m_NSGAIIProject->nbinmut);
 
   for(int i = 0 ; i < nobj ; i++)
   {
@@ -1018,7 +1028,7 @@ void NSGAIIAlgorithm::printCustomHeader(FILE *file)
     fprintf(file, "Variables_%i-%s, ", i+1, name.toStdString().c_str());
   }
 
-  fprintf(file, "constr_violation, rank, crowding_distance, generation\n");
+  fprintf(file, "constr_violation, rank, crowding_distance, generation, index\n");
 }
 
 void NSGAIIAlgorithm::deleteProject()
@@ -1032,15 +1042,16 @@ void NSGAIIAlgorithm::deleteProject()
 
 void NSGAIIAlgorithm::setCurrentPopulation(population *currentPop)
 {
-  initializeIndividuals(m_NSGAIIProject->popsize);
+  if(numIndividuals() != m_NSGAIIProject->popsize)
+  {
+    initializeIndividuals(m_NSGAIIProject->popsize);
+  }
 
-#ifdef USE_OPENMP
-#pragma omp parallel for
-#endif
   for(int i = 0 ; i < m_NSGAIIProject->popsize; i++)
   {
     Individual *indA = m_individuals[i];
     individual &indB = currentPop->ind[i];
+    indB.index = i;
 
     double *indAVars = indA->variables();
     double *indAObjs = indA->objectives();
@@ -1065,9 +1076,7 @@ void NSGAIIAlgorithm::setCurrentPopulation(population *currentPop)
 
 void NSGAIIAlgorithm::readObjectives(population *currentPop)
 {
-#ifdef USE_OPENMP
-#pragma omp parallel for
-#endif
+
   for(int i = 0 ; i < m_NSGAIIProject->popsize; i++)
   {
     Individual *indA = m_individuals[i];

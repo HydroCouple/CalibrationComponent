@@ -1,7 +1,7 @@
 #Author Caleb Amoa Buahin
 #Email caleb.buahin@gmail.com
 #Date 2018
-#License GNU General Public License (see <http: //www.gnu.org/licenses/> for details).
+#License GNU Lesser General Public License (see <http: //www.gnu.org/licenses/> for details).
 #The CalibrationComponent is a component-based model calibration component
 
 TEMPLATE = lib
@@ -10,22 +10,15 @@ TARGET = CalibrationComponent
 QT -= gui
 QT += testlib
 
-
-#Added for faster compilation
-*msvc* { # visual studio spec filter
-      QMAKE_CXXFLAGS += /MP /O2
-  }
-
-
 CONFIG += c++11
 CONFIG += debug_and_release
+CONFIG += optimize_full
 
 DEFINES += CALIBRATIONCOMPONENT_LIBRARY
 DEFINES += USE_OPENMP
 DEFINES += USE_MPI
 DEFINES += USE_NETCDF
 DEFINES += USE_CHPC
-
 
 #Compile as library or executable
 contains(DEFINES,CALIBRATIONCOMPONENT_LIBRARY){
@@ -95,8 +88,10 @@ macx{
                    /usr/local/include
 
     contains(DEFINES, USE_NETCDF){
+
     message("NetCDF enabled")
     LIBS += -L/usr/local/lib -lnetcdf-cxx4
+
     }
 
     contains(DEFINES,USE_OPENMP){
@@ -113,7 +108,9 @@ macx{
         LIBS += -L /usr/local/opt/llvm/lib -lomp
 
       message("OpenMP enabled")
-    } else {
+
+      } else {
+
       message("OpenMP disabled")
     }
 
@@ -122,35 +119,32 @@ macx{
         QMAKE_CXX = /usr/local/bin/mpicxx
         QMAKE_LINK = /usr/local/bin/mpicxx
 
-        QMAKE_CFLAGS += $$system(mpicc --showme:compile)
-        QMAKE_CXXFLAGS += $$system(mpic++ --showme:compile)
-        QMAKE_LFLAGS += $$system(mpic++ --showme:link)
-
         LIBS += -L/usr/local/lib -lmpi
 
         message("MPI enabled")
 
-    } else {
+        } else {
 
-      message("MPI disabled")
+        message("MPI disabled")
 
     }
 }
 
 linux{
 
-INCLUDEPATH += /usr/include \
-               ../gdal/include
+    INCLUDEPATH += /usr/include \
+                   ../gdal/include
 
-    contains(DEFINES,UTAH_CHPC){
+    contains(DEFINES,USE_CHPC){
 
          INCLUDEPATH += /uufs/chpc.utah.edu/sys/installdir/hdf5/1.8.17-c7/include \
                         /uufs/chpc.utah.edu/sys/installdir/netcdf-c/4.3.3.1/include \
                         /uufs/chpc.utah.edu/sys/installdir/netcdf-cxx/4.3.0-c7/include
 
 
-         LIBS += -L/uufs/chpc.utah.edu/sys/installdir/hdf5/1.8.17-c7/lib -lhdf5 \
-                 -L/uufs/chpc.utah.edu/sys/installdir/netcdf-cxx/4.3.0-c7/lib -lnetcdf_c++4
+         LIBS += -L/uufs/chpc.utah.edu/sys/installdir/hdf5/1.8.17-c7/lib -l:libhdf5.so.10.2.0 \
+                 -L/uufs/chpc.utah.edu/sys/installdir/netcdf-c/4.4.1/lib -l:libnetcdf.so.11.0.3 \
+                 -L/uufs/chpc.utah.edu/sys/installdir/netcdf-cxx/4.3.0-c7/lib -l:libnetcdf_c++4.so.1.0.3
 
          message("Compiling on CHPC")
     }
@@ -170,52 +164,94 @@ INCLUDEPATH += /usr/include \
       message("OpenMP disabled")
 
     }
+
+    contains(DEFINES,USE_MPI){
+
+        QMAKE_CC = mpicc
+        QMAKE_CXX = mpic++
+        QMAKE_LINK = mpic++
+
+        LIBS += -L/usr/local/lib/ -lmpi
+
+        message("MPI enabled")
+
+        } else {
+
+        message("MPI disabled")
+
+    }
 }
 
 win32{
 
-    #Windows vspkg package manager installation path
-    VSPKGDIR = C:/vcpkg/installed/x64-windows
+    #Windows vspkg package manager installation path if environment variable is not set
+    #VCPKGDIR = C:/vcpkg/installed/x64-windows
 
-    INCLUDEPATH += $${VSPKGDIR}/include \
-                   $${VSPKGDIR}/include/gdal
+    INCLUDEPATH += $${VCPKGDIR}/include \
+                   $${VCPKGDIR}/include/gdal
 
     CONFIG(debug, debug|release) {
-    LIBS += -L$${VSPKGDIR}/debug/lib -lgdald
+        LIBS += -L$${VCPKGDIR}/debug/lib -lgdald
         } else {
-    LIBS += -L$${VSPKGDIR}/lib -lgdal
+        LIBS += -L$${VCPKGDIR}/lib -lgdal
     }
 
     contains(DEFINES, USE_NETCDF){
+
     message("NetCDF enabled")
+
     CONFIG(release, debug|release) {
-        LIBS += -L$${VSPKGDIR}/lib -lnetcdf \
-                -L$${VSPKGDIR}/lib -lnetcdf-cxx4
+        LIBS += -L$${VCPKGDIR}/lib -lnetcdf \
+                -L$${VCPKGDIR}/lib -lnetcdf-cxx4
         } else {
-        LIBS += -L$${VSPKGDIR}/debug/lib -lnetcdf \
-                -L$${VSPKGDIR}/debug/lib -lnetcdf-cxx4
+        LIBS += -L$${VCPKGDIR}/debug/lib -lnetcdf \
+                -L$${VCPKGDIR}/debug/lib -lnetcdf-cxx4
         }
     }
 
     contains(DEFINES,USE_OPENMP){
+
         QMAKE_CFLAGS += /openmp
         QMAKE_CXXFLAGS += /openmp
-        QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CXXFLAGS /MD
-        QMAKE_CXXFLAGS_DEBUG = $$QMAKE_CXXFLAGS /MDd
         message("OpenMP enabled")
-     } else {
-      message("OpenMP disabled")
+
+        } else {
+
+        message("OpenMP disabled")
      }
 
     contains(DEFINES,USE_MPI){
-       LIBS += -L$$(MSMPI_LIB64)/ -lmsmpi
        message("MPI enabled")
-     } else {
+
+        CONFIG(debug, debug|release) {
+            LIBS += -L$${VCPKGDIR}/debug/lib -lmsmpi
+          } else {
+            LIBS += -L$${VCPKGDIR}/lib -lmsmpi
+        }
+
+    } else {
       message("MPI disabled")
-     }
+    }
+
+
+    QMAKE_CXXFLAGS += /MP
+    QMAKE_LFLAGS += /MP /incremental /debug:fastlink
   }
 
 CONFIG(debug, debug|release) {
+
+
+    win32 {
+       QMAKE_CXXFLAGS += /MDd /O2
+    }
+
+    macx {
+       QMAKE_CXXFLAGS += -O3
+    }
+
+    linux {
+       QMAKE_CXXFLAGS += -O3
+    }
 
    DESTDIR = ./build/debug
    OBJECTS_DIR = $$DESTDIR/.obj
@@ -226,14 +262,14 @@ CONFIG(debug, debug|release) {
    macx{
 
     QMAKE_POST_LINK += "cp -a ./../HydroCoupleSDK/build/debug/*HydroCoupleSDK.* ./build/debug/";
-    LIBS += -L./../HydroCoupleSDK/build/debug -lHydroCoupleSDK.1.0.0
+    LIBS += -L./../HydroCoupleSDK/build/debug -lHydroCoupleSDK
 
     }
 
    linux{
 
     QMAKE_POST_LINK += "cp -a ./../HydroCoupleSDK/build/debug/*HydroCoupleSDK.* ./build/debug/";
-    LIBS += -L./../HydroCoupleSDK/build/debug -lHydroCoupleSDK.so.1.0.0
+    LIBS += -L./../HydroCoupleSDK/build/debug -lHydroCoupleSDK
 
     }
 
@@ -247,6 +283,12 @@ CONFIG(debug, debug|release) {
 
 CONFIG(release, debug|release) {
 
+   win32 {
+     QMAKE_CXXFLAGS += /MD
+   }
+
+
+
     RELEASE_EXTRAS = ./build/release
     OBJECTS_DIR = $$RELEASE_EXTRAS/.obj
     MOC_DIR = $$RELEASE_EXTRAS/.moc
@@ -254,11 +296,11 @@ CONFIG(release, debug|release) {
     UI_DIR = $$RELEASE_EXTRAS/.ui
 
    macx{
-    LIBS += -L./../HydroCoupleSDK/lib/macx -lHydroCoupleSDK.1.0.0
+    LIBS += -L./../HydroCoupleSDK/lib/macx -lHydroCoupleSDK
     }
 
    linux{
-    LIBS += -L./../HydroCoupleSDK/lib/linux -lHydroCoupleSDK.so.1.0.0
+    LIBS += -L./../HydroCoupleSDK/lib/linux -lHydroCoupleSDK
     }
 
    win32{

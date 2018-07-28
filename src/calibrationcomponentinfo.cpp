@@ -24,6 +24,7 @@ CalibrationComponentInfo::CalibrationComponentInfo(QObject *parent)
   QStringList documentation;
   documentation << "Several sources";
   setDocumentation(documentation);
+
 }
 
 CalibrationComponentInfo::~CalibrationComponentInfo()

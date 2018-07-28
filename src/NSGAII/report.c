@@ -46,10 +46,12 @@ void report_pop (NSGAIIProject *project,  population *pop, FILE *fpt)
       }
     }
 
+
     fprintf(fpt,"%e, ",pop->ind[i].constr_violation);
     fprintf(fpt,"%d, ",pop->ind[i].rank);
     fprintf(fpt,"%e, ",pop->ind[i].crowd_dist);
-    fprintf(fpt,"%d\n",pop->generation);
+    fprintf(fpt,"%d, ",pop->generation);
+    fprintf(fpt,"%d\n",pop->ind[i].index);
 
   }
 
@@ -96,7 +98,9 @@ void report_feasible (NSGAIIProject *project,  population *pop, FILE *fpt)
 
       fprintf(fpt,"%e, ",pop->ind[i].constr_violation);
       fprintf(fpt,"%d, ",pop->ind[i].rank);
-      fprintf(fpt,"%e\n",pop->ind[i].crowd_dist);
+      fprintf(fpt,"%e, ",pop->ind[i].crowd_dist);
+      fprintf(fpt,"%d, ",pop->generation);
+      fprintf(fpt,"%d\n",pop->ind[i].index);
     }
   }
   return;

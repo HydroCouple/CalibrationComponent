@@ -197,6 +197,7 @@ class CALIBRATIONCOMPONENT_EXPORT CalibrationComponent : public AbstractModelCom
     static const std::unordered_map<std::string, int> m_globalOptionsFlags;
     Dimension *m_geometryDimension;
     Quantity *m_defaultQuantity;
+    bool m_firstSimulation;
 };
 
 #endif // CALIBRATIONCOMPONENT_H

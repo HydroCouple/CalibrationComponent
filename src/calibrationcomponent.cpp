@@ -57,6 +57,7 @@ CalibrationComponent::~CalibrationComponent()
   else
   {
     m_parent->removeClone(this);
+    m_parent = nullptr;
   }
 }
 
@@ -138,8 +139,11 @@ void CalibrationComponent::update(const QList<HydroCouple::IOutput *> &requiredO
 {
   if(status() == IModelComponent::Updated)
   {
+
     if(m_parent != nullptr)
     {
+      setStatus(IModelComponent::Updating);
+
       //update outputs
       updateOutputValues(requiredOutputs);
 
@@ -151,15 +155,42 @@ void CalibrationComponent::update(const QList<HydroCouple::IOutput *> &requiredO
     }
     else
     {
+      setStatus(IModelComponent::Updating, "Calibration component updating..." , progressChecker()->progress());
+
       if(!m_calibrationAlgorithm->isDone())
       {
         m_errors.clear();
+
+        if(m_firstSimulation)
+        {
+          m_firstSimulation = false;
+        }
+        else
+        {
+          for(ModelComponent *modelComponent : m_modelComposition->components())
+          {
+            if(this != modelComponent->modelComponent())
+            {
+              modelComponent->modelComponent()->finish();
+              modelComponent->modelComponent()->initialize();
+            }
+          }
+
+          m_modelComposition->reestablishConnections();
+
+          for(ModelComponent *modelComponent : m_modelComposition->components())
+          {
+            if(this != modelComponent->modelComponent())
+            {
+              modelComponent->modelComponent()->prepare();
+            }
+          }
+        }
 
         m_calibrationAlgorithm->prepareForEvaluation(m_errors);
 
         if(m_modelComposition->isCloneable())
         {
-          bool start = true;
           std::vector<ModelComposition*> compositions;
           int remain = m_calibrationAlgorithm->numIndividuals();
 
@@ -169,16 +200,16 @@ void CalibrationComponent::update(const QList<HydroCouple::IOutput *> &requiredO
           {
             int numClones = remain < m_maxParallelSims ? remain : m_maxParallelSims;
 
-            if(start)
+            if(indIndex == 0)
             {
               compositions.push_back(m_modelComposition);
               m_individual = indIndex; indIndex++;
-              start = false;
             }
 
             while((int)compositions.size() < numClones)
             {
               ModelComposition *cloneCompostion = m_modelComposition->clone();
+
               CalibrationComponent *cloneComponent =  dynamic_cast<CalibrationComponent*>(cloneCompostion->findModelComponent(id())->modelComponent());
               cloneComponent->m_individual = indIndex; indIndex++;
 
@@ -205,32 +236,14 @@ void CalibrationComponent::update(const QList<HydroCouple::IOutput *> &requiredO
                 {
                   component->modelComponent()->finish();
                 }
+
                 delete cloneComposition;
               }
             }
 
             compositions.clear();
 
-            for(ModelComponent *modelComponent : m_modelComposition->components())
-            {
-              if(this != modelComponent->modelComponent())
-              {
-                modelComponent->modelComponent()->finish();
-                modelComponent->modelComponent()->initialize();
-              }
-            }
-
             remain = remain - numClones;
-          }
-
-          m_modelComposition->reestablishConnections();
-
-          for(ModelComponent *modelComponent : m_modelComposition->components())
-          {
-            if(this != modelComponent->modelComponent())
-            {
-              modelComponent->modelComponent()->prepare();
-            }
           }
         }
         else
@@ -261,9 +274,15 @@ void CalibrationComponent::update(const QList<HydroCouple::IOutput *> &requiredO
         //continue with optimization
         m_calibrationAlgorithm->processEvaluationOutput(m_errors);
 
+      }
+
+      if(!m_calibrationAlgorithm->isDone())
+      {
         if(progressChecker()->performStep(m_calibrationAlgorithm->progress()->currentValue()))
         {
-          setStatus(IModelComponent::Updated , "Calibration component updated..." , progressChecker()->progress());
+
+          QString message = "Calibration component updated | Progress: " + QString::number(progressChecker()->progress()) + " %";
+          setStatus(IModelComponent::Updated , message , progressChecker()->progress());
         }
         else
         {
@@ -415,7 +434,7 @@ bool CalibrationComponent::removeClone(CalibrationComponent *component)
   int removed;
 
 #ifdef USE_OPENMP
-#pragma omp critical
+#pragma omp critical (CalibrationComponent)
 #endif
   {
     removed = m_clones.removeAll(component);
@@ -467,11 +486,11 @@ void CalibrationComponent::createInputs()
 
 void CalibrationComponent::createCalibrationComponentsInput()
 {
-//  m_triggerComponentInput = new TriggerComponentInput("TriggerComponentConnection",this);
-//  m_triggerComponentInput->setCaption("Trigger Component Input");
-//  m_triggerComponentInput->setDescription("Any output from the trigger component must be connected to this input");
+  //  m_triggerComponentInput = new TriggerComponentInput("TriggerComponentConnection",this);
+  //  m_triggerComponentInput->setCaption("Trigger Component Input");
+  //  m_triggerComponentInput->setDescription("Any output from the trigger component must be connected to this input");
 
-//  addInput(m_triggerComponentInput);
+  //  addInput(m_triggerComponentInput);
 }
 
 void CalibrationComponent::createObjectiveFunctionInputs()
@@ -727,6 +746,8 @@ bool CalibrationComponent::initializeInputFilesArguments(QString &message)
     message = "Input file does not exist: " + inputFile.absoluteFilePath();
     return false;
   }
+
+  m_firstSimulation = true;
 
   return true;
 }
