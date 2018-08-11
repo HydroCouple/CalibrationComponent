@@ -514,9 +514,6 @@ bool NSGAIIAlgorithm::initialize(QStringList &errors)
 
   allocate_memory_project(&m_NSGAIIProject);
 
-  //testing remove
-//  return true;
-
   if (seed <= 0.0 || seed >= 1.0)
   {
     errors.push_back("Entered seed value is wrong, seed value must be in (0,1)");
