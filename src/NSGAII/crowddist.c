@@ -16,28 +16,28 @@ void assign_crowding_distance_list (NSGAIIProject *project, population *pop, lis
     list *temp;
     temp = lst;
 
-    if (front_size==1)
+    if (front_size == 1)
     {
         pop->ind[lst->index].crowd_dist = INF;
         return;
     }
 
-    if (front_size==2)
+    if (front_size == 2)
     {
         pop->ind[lst->index].crowd_dist = INF;
         pop->ind[lst->child->index].crowd_dist = INF;
         return;
     }
 
-    obj_array = (int **)malloc(project->nobj*sizeof(int));
-    dist = (int *)malloc(front_size*sizeof(int));
+    obj_array = (int **)malloc(project->nobj * sizeof(int*));
+    dist = (int*) malloc(front_size * sizeof(int));
 
-    for (i=0; i<project->nobj; i++)
+    for (i= 0; i< project->nobj; i++)
     {
-        obj_array[i] = (int *)malloc(front_size*sizeof(int));
+        obj_array[i] = (int *)malloc(front_size * sizeof(int));
     }
 
-    for (j=0; j<front_size; j++)
+    for (j=0; j < front_size; j++)
     {
         dist[j] = temp->index;
         temp = temp->child;
@@ -48,7 +48,7 @@ void assign_crowding_distance_list (NSGAIIProject *project, population *pop, lis
     free (dist);
     dist  = NULL;
 
-    for (i=0; i<project->nobj; i++)
+    for (i= 0; i < project->nobj; i++)
     {
         free (obj_array[i]);
         obj_array[i] = NULL;
@@ -97,16 +97,16 @@ void assign_crowding_distance_indices (NSGAIIProject *project, population *pop, 
 
     assign_crowding_distance (project, pop, dist, obj_array, front_size);
     free (dist);
-    dist  = NULL;
+//    dist  = NULL;
 
     for (i=0; i<project->nobj; i++)
     {
         free (obj_array[i]);
-        obj_array[i] = NULL;
+//        obj_array[i] = NULL;
     }
 
     free (obj_array);
-    obj_array = NULL;
+//    obj_array = NULL;
 
     return;
 }
