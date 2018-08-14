@@ -97,16 +97,16 @@ void assign_crowding_distance_indices (NSGAIIProject *project, population *pop, 
 
     assign_crowding_distance (project, pop, dist, obj_array, front_size);
     free (dist);
-//    dist  = NULL;
+    dist  = NULL;
 
     for (i=0; i<project->nobj; i++)
     {
         free (obj_array[i]);
-//        obj_array[i] = NULL;
+        obj_array[i] = NULL;
     }
 
     free (obj_array);
-//    obj_array = NULL;
+    obj_array = NULL;
 
     return;
 }
