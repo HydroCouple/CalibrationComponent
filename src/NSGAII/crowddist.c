@@ -82,7 +82,7 @@ void assign_crowding_distance_indices (NSGAIIProject *project, population *pop, 
         return;
     }
 
-    obj_array = (int **)malloc(project->nobj*sizeof(int));
+    obj_array = (int **)malloc(project->nobj*sizeof(int*));
     dist = (int *)malloc(front_size*sizeof(int));
 
     for (i=0; i<project->nobj; i++)
