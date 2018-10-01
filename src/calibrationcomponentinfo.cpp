@@ -12,7 +12,7 @@ CalibrationComponentInfo::CalibrationComponentInfo(QObject *parent)
 
   setId("A Model Calibration Component 1.0.0");
   setCaption("Calibration Component");
-  setIconFilePath("./../../resources/images/hydrocouplecomposer.png");
+  setIconFilePath(":/CalibrationComponent/calibrationcomponenticon");
   setDescription("A one-dimensional channel heat and solute transport model.");
   setCategory("Parameter Estimation & Uncertainty");
   setCopyright("");

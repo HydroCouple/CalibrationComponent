@@ -68,9 +68,6 @@ QList<QString> CalibrationComponent::validate()
   if(isInitialized())
   {
     setStatus(IModelComponent::Validating,"Validating...");
-
-    //check connections
-
     setStatus(IModelComponent::Valid,"");
   }
   else
@@ -105,7 +102,6 @@ void CalibrationComponent::prepare()
       m_modelComposition = new ModelComposition(false, QList<IModelComponent*>({this}), this);
 
       //updateOutputValues(QList<HydroCouple::IOutput*>());
-
       setStatus(IModelComponent::Updated ,"Finished preparing model");
       setPrepared(true);
     }
@@ -128,7 +124,6 @@ void CalibrationComponent::prepare()
       }
 
       updateOutputValues(QList<HydroCouple::IOutput*>());
-
       setStatus(IModelComponent::Updated ,"Finished preparing model");
       setPrepared(true);
     }
@@ -372,35 +367,6 @@ ICloneableModelComponent *CalibrationComponent::clone()
     (*cloneIndentifierArg)["Caption"] = QString((*identifierArg)["Caption"]);
     (*cloneIndentifierArg)["Description"] = QString((*identifierArg)["Description"]);
 
-
-    //      (*cloneComponent->m_inputFilesArgument)["Input File"] = (*m_inputFilesArgument)["Input File"];
-
-    //      QString appendName = "_clone_" + QString::number(m_clones.size() + 1);
-
-    //      QString outputNetCDFFilePath = (*m_inputFilesArgument)["Output NetCDF File"];
-    //      QFileInfo outputNetCDFFile = getAbsoluteFilePath(outputNetCDFFilePath);
-
-    //      if(!outputNetCDFFilePath.isEmpty() && outputNetCDFFile.absoluteDir().exists())
-    //      {
-    //       QString suffix = "." + outputNetCDFFile.completeSuffix();
-    //       outputNetCDFFilePath = outputNetCDFFile.absoluteFilePath().replace(suffix,"") + appendName + suffix;
-    //       (*cloneComponent->m_inputFilesArgument)["Output NetCDF File"] = outputNetCDFFilePath;
-    //      }
-
-    //      QString  outputCSVFilePath = (*m_inputFilesArgument)["Output CSV File"];
-    //      QFileInfo outputCSVFile = getAbsoluteFilePath(outputCSVFilePath);
-
-    //      if(!outputCSVFilePath.isEmpty() && outputCSVFile.absoluteDir().exists())
-    //      {
-    //        QString suffix = "." + outputCSVFile.completeSuffix();
-    //        outputCSVFilePath = outputCSVFile.absoluteFilePath().replace(suffix,"") + appendName + suffix;
-    //        (*cloneComponent->m_inputFilesArgument)["Output CSV File"] = outputCSVFilePath;
-    //      }
-
-
-    //  //    printf("Output File: %s\n" , outputFilePath.toStdString().c_str());
-    //  //    printf("Report File: %s\n" , reportFilePath.toStdString().c_str());
-
     cloneComponent->m_parent = this;
     m_clones.append(cloneComponent);
     cloneComponent->initialize();
@@ -409,7 +375,6 @@ ICloneableModelComponent *CalibrationComponent::clone()
 
     return cloneComponent;
   }
-
 
   return nullptr;
 }
@@ -480,17 +445,7 @@ void CalibrationComponent::createInputFileArguments()
 
 void CalibrationComponent::createInputs()
 {
-  createCalibrationComponentsInput();
   createObjectiveFunctionInputs();
-}
-
-void CalibrationComponent::createCalibrationComponentsInput()
-{
-  //  m_triggerComponentInput = new TriggerComponentInput("TriggerComponentConnection",this);
-  //  m_triggerComponentInput->setCaption("Trigger Component Input");
-  //  m_triggerComponentInput->setDescription("Any output from the trigger component must be connected to this input");
-
-  //  addInput(m_triggerComponentInput);
 }
 
 void CalibrationComponent::createObjectiveFunctionInputs()
@@ -539,7 +494,6 @@ void CalibrationComponent::createObjectiveFunctionInputs()
 
       }
     }
-
   }
 }
 

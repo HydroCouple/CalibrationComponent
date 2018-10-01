@@ -133,11 +133,6 @@ class CALIBRATIONCOMPONENT_EXPORT CalibrationComponent : public AbstractModelCom
     void createInputs() override;
 
     /*!
-     * \brief createCalibrationComponentsInput
-     */
-    void createCalibrationComponentsInput();
-
-    /*!
      * \brief createObjectiveFunctionInputs
      */
     void createObjectiveFunctionInputs();

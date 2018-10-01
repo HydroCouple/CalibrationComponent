@@ -345,3 +345,6 @@ CONFIG(release, debug|release) {
         }
     }
 }
+
+RESOURCES += \
+    resources/calibrationcomponent.qrc

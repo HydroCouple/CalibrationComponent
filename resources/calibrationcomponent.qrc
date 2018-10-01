@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/CalibrationComponent">
+        <file alias="calibrationcomponenticon">images/calibrationcomponenticon.png</file>
+    </qresource>
+</RCC>
