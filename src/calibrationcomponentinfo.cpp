@@ -13,7 +13,9 @@ CalibrationComponentInfo::CalibrationComponentInfo(QObject *parent)
   setId("A Model Calibration Component 1.0.0");
   setCaption("Calibration Component");
   setIconFilePath(":/CalibrationComponent/calibrationcomponenticon");
-  setDescription("A one-dimensional channel heat and solute transport model.");
+  setDescription("A calibration & optimization component that uses various"
+                 " multiobjective evolutionary algorithms");
+
   setCategory("Parameter Estimation & Uncertainty");
   setCopyright("");
   setVendor("");
