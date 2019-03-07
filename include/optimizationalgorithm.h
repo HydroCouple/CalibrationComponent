@@ -26,6 +26,8 @@ class CALIBRATIONCOMPONENT_EXPORT OptimizationAlgorithm : public QObject
 
     virtual QString variableName(int index) const = 0;
 
+    virtual QString variableDescription(int index) const = 0;
+
     virtual int getVariableIndex(const QString& variableName) const = 0;
 
     virtual QList<QSharedPointer<HCGeometry>> variableGeometries(int index);
@@ -34,6 +36,8 @@ class CALIBRATIONCOMPONENT_EXPORT OptimizationAlgorithm : public QObject
 
     virtual QString objectiveName(int index) const = 0;
 
+    virtual QString objectiveDescription(int index) const = 0;
+
     virtual int getObjectiveIndex(const QString& objectiveName) const = 0;
 
     virtual QList<QSharedPointer<HCGeometry>> objectiveGeometries(int index);
@@ -41,6 +45,8 @@ class CALIBRATIONCOMPONENT_EXPORT OptimizationAlgorithm : public QObject
     virtual int numConstraints() const = 0;
 
     virtual QString constraintName(int index) const = 0;
+
+    virtual QString constraintDescription(int index) const = 0;
 
     virtual int getConstraintIndex(const QString& variableName) const = 0;
 

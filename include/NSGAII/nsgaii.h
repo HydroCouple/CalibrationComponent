@@ -20,6 +20,8 @@ class CALIBRATIONCOMPONENT_EXPORT NSGAIIAlgorithm : public OptimizationAlgorithm
 
     QString variableName(int index) const override;
 
+    QString variableDescription(int index) const override;
+
     int getVariableIndex(const QString& variableName) const override;
 
     QList<QSharedPointer<HCGeometry>> variableGeometries(int index) override;
@@ -28,6 +30,8 @@ class CALIBRATIONCOMPONENT_EXPORT NSGAIIAlgorithm : public OptimizationAlgorithm
 
     QString objectiveName(int index) const override;
 
+    QString objectiveDescription(int index) const override;
+
     int getObjectiveIndex(const QString& objectiveName) const override;
 
     QList<QSharedPointer<HCGeometry>> objectiveGeometries(int index) override;
@@ -35,6 +39,8 @@ class CALIBRATIONCOMPONENT_EXPORT NSGAIIAlgorithm : public OptimizationAlgorithm
     int numConstraints() const override;
 
     QString constraintName(int index) const override;
+
+    QString constraintDescription(int index) const override;
 
     int getConstraintIndex(const QString& constraintName) const override;
 
@@ -103,9 +109,9 @@ class CALIBRATIONCOMPONENT_EXPORT NSGAIIAlgorithm : public OptimizationAlgorithm
     static const std::unordered_map<std::string, int> m_optionsFlags;
     static const std::unordered_map<std::string, int> m_outputFileFlags;
 
-    std::vector<QString> m_variableNames,
-    m_objectiveNames,
-    m_constraintNames;
+    std::vector<QString> m_variableNames, m_variableDesc,
+    m_objectiveNames, m_objectiveDesc,
+    m_constraintNames, m_constraintDesc;
 
     std::unordered_map<std::string, QList<QSharedPointer<HCGeometry>>> m_variableGeometries,
     m_objectiveGeometries,
@@ -119,7 +125,7 @@ class CALIBRATIONCOMPONENT_EXPORT NSGAIIAlgorithm : public OptimizationAlgorithm
             m_inputFileAllPop, // All populations
             m_inputFileModelParams; // Model parameters
 
-    QRegExp m_delimiters;
+    QString m_delimiters;
 
 };
 

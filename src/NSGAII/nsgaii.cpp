@@ -7,8 +7,10 @@
 #include "spatial/geometryfactory.h"
 #include "spatial/envelope.h"
 #include "spatial/geometry.h"
+#include "temporal/timeseries.h"
 
 #include <cstdio>
+#include <QDebug>
 
 NSGAIIAlgorithm::NSGAIIAlgorithm(QObject *parent)
   : OptimizationAlgorithm(parent),
@@ -47,6 +49,11 @@ QString NSGAIIAlgorithm::variableName(int index) const
   return m_variableNames[index];
 }
 
+QString NSGAIIAlgorithm::variableDescription(int index) const
+{
+  return m_variableDesc[index];
+}
+
 int NSGAIIAlgorithm::getVariableIndex(const QString &variableName) const
 {
   for(size_t i = 0; i < m_variableNames.size(); i++)
@@ -78,6 +85,11 @@ QString NSGAIIAlgorithm::objectiveName(int index) const
   return m_objectiveNames[index];
 }
 
+QString NSGAIIAlgorithm::objectiveDescription(int index) const
+{
+  return m_objectiveDesc[index];
+}
+
 int NSGAIIAlgorithm::getObjectiveIndex(const QString &objectiveName) const
 {
   for(size_t i = 0; i < m_objectiveNames.size(); i++)
@@ -107,6 +119,11 @@ int NSGAIIAlgorithm::numConstraints() const
 QString NSGAIIAlgorithm::constraintName(int index) const
 {
   return m_constraintNames[index];
+}
+
+QString NSGAIIAlgorithm::constraintDescription(int index) const
+{
+  return  m_constraintDesc[index];
 }
 
 int NSGAIIAlgorithm::getConstraintIndex(const QString &constraintName) const
@@ -167,16 +184,15 @@ void NSGAIIAlgorithm::prepareForInputFileRead()
   m_inputFileAllPop = "";
   m_inputFileModelParams = "";
 
-  m_variableNames.clear();
-  m_objectiveNames.clear();
-  m_constraintNames.clear();
+  m_variableNames.clear(); m_variableDesc.clear();
+  m_objectiveNames.clear(); m_objectiveDesc.clear();
+  m_constraintNames.clear(); m_constraintDesc.clear();
 
   min_realvar.clear();
   max_realvar.clear();
 
   //delete geometries
-
-  m_delimiters = QRegExp("(\\,|\\t|\\;|\\s+)");
+  m_delimiters = "\\,|\\t|\\;|\\s";
 }
 
 bool NSGAIIAlgorithm::processInputFileLine(const QString &currentFlag, const QString &line, QString &error)
@@ -190,7 +206,7 @@ bool NSGAIIAlgorithm::processInputFileLine(const QString &currentFlag, const QSt
   {
     case 1:
       {
-        QStringList cols = line.split(m_delimiters,QString::SkipEmptyParts);
+        QStringList cols = TimeSeries::splitLine(line, m_delimiters);
 
         if(cols.size() == 2)
         {
@@ -322,7 +338,8 @@ bool NSGAIIAlgorithm::processInputFileLine(const QString &currentFlag, const QSt
       break;
     case 8:
       {
-        QStringList cols = line.split(m_delimiters,QString::SkipEmptyParts);
+        QRegExp delim = QRegExp("(" + m_delimiters + ")+");
+        QStringList cols = line.split(delim, QString::SkipEmptyParts);
 
         if(cols.size() == 2)
         {
@@ -364,13 +381,14 @@ bool NSGAIIAlgorithm::processInputFileLine(const QString &currentFlag, const QSt
 
 bool NSGAIIAlgorithm::readOptArg(const QString &line, int type, QString &error)
 {
-  QStringList cols = line.split(m_delimiters,QString::SkipEmptyParts);
+  QStringList cols = TimeSeries::splitLine(line, m_delimiters);
+
 
   switch (type)
   {
     case 1:
       {
-        if(cols.size() == 3)
+        if(cols.size() >= 3)
         {
           bool minOk, maxOk;
           QString variable = cols[0];
@@ -382,6 +400,15 @@ bool NSGAIIAlgorithm::readOptArg(const QString &line, int type, QString &error)
             m_variableNames.push_back(variable);
             min_realvar.push_back(minV);
             max_realvar.push_back(maxV);
+
+            if(cols.size() == 4)
+            {
+              m_variableDesc.push_back(cols[3]);
+            }
+            else
+            {
+              m_variableDesc.push_back(variable);
+            }
           }
           else
           {
@@ -398,9 +425,18 @@ bool NSGAIIAlgorithm::readOptArg(const QString &line, int type, QString &error)
       break;
     case 2:
       {
-        if(cols.size() == 1)
+        if(cols.size() >= 1)
         {
           m_objectiveNames.push_back(cols[0]);
+
+          if(cols.size() == 2)
+          {
+            m_objectiveDesc.push_back(cols[1]);
+          }
+          else
+          {
+            m_objectiveDesc.push_back(cols[0]);
+          }
         }
         else
         {
@@ -412,9 +448,18 @@ bool NSGAIIAlgorithm::readOptArg(const QString &line, int type, QString &error)
       break;
     case 3:
       {
-        if(cols.size() == 1)
+        if(cols.size() >= 1)
         {
           m_constraintNames.push_back(cols[0]);
+
+          if(cols.size() == 2)
+          {
+            m_constraintDesc.push_back(cols[1]);
+          }
+          else
+          {
+            m_constraintDesc.push_back(cols[0]);
+          }
         }
         else
         {
@@ -431,7 +476,8 @@ bool NSGAIIAlgorithm::readOptArg(const QString &line, int type, QString &error)
 
 bool NSGAIIAlgorithm::readOptArgGeometry(const QString &line, int type, QString &error)
 {
-  QStringList cols = line.split(m_delimiters,QString::SkipEmptyParts);
+  QRegExp delim = QRegExp("(" + m_delimiters + ")+");
+  QStringList cols = line.split(delim,QString::SkipEmptyParts);
 
   if(cols.size() == 3)
   {

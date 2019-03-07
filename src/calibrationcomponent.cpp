@@ -462,7 +462,8 @@ void CalibrationComponent::createObjectiveFunctionInputs()
       {
         QString objectiveId = m_calibrationAlgorithm->objectiveName(i);
         SpatialObjectiveInput *spatialVariableInput = new SpatialObjectiveInput(objectiveId, geometries[0]->geometryType(), m_geometryDimension, m_defaultQuantity,this);
-        spatialVariableInput->setCaption(objectiveId);
+        spatialVariableInput->setCaption(m_calibrationAlgorithm->objectiveDescription(i));
+        spatialVariableInput->setDescription(m_calibrationAlgorithm->objectiveDescription(i));
         spatialVariableInput->addGeometries(geometries);
         addInput(spatialVariableInput);
       }
@@ -485,7 +486,8 @@ void CalibrationComponent::createObjectiveFunctionInputs()
       {
         QString objectiveId = m_parent->m_calibrationAlgorithm->objectiveName(i);
         SpatialObjectiveInput *spatialVariableInput = new SpatialObjectiveInput(objectiveId, geometries[0]->geometryType(), m_geometryDimension, m_defaultQuantity,this);
-        spatialVariableInput->setCaption(objectiveId);
+        spatialVariableInput->setCaption(m_parent->m_calibrationAlgorithm->objectiveDescription(i));
+        spatialVariableInput->setDescription(m_parent->m_calibrationAlgorithm->objectiveDescription(i));
         spatialVariableInput->addGeometries(geometries);
         addInput(spatialVariableInput);
       }
@@ -516,7 +518,8 @@ void CalibrationComponent::createVariableOutputs()
       {
         QString variableId = m_calibrationAlgorithm->variableName(i);
         SpatialVariableOutput *spatialVariableOutput = new SpatialVariableOutput(variableId, geometries[0]->geometryType(), m_geometryDimension, m_defaultQuantity,this);
-        spatialVariableOutput->setCaption(variableId);
+        spatialVariableOutput->setCaption(m_calibrationAlgorithm->variableDescription(i));
+        spatialVariableOutput->setDescription(m_calibrationAlgorithm->variableDescription(i));
         spatialVariableOutput->addGeometries(geometries);
         addOutput(spatialVariableOutput);
       }
@@ -539,7 +542,8 @@ void CalibrationComponent::createVariableOutputs()
       {
         QString variableId = m_parent->m_calibrationAlgorithm->variableName(i);
         SpatialVariableOutput *spatialVariableOutput = new SpatialVariableOutput(variableId, geometries[0]->geometryType(), m_geometryDimension, m_defaultQuantity,this);
-        spatialVariableOutput->setCaption(variableId);
+        spatialVariableOutput->setCaption(m_parent->m_calibrationAlgorithm->variableDescription(i));
+        spatialVariableOutput->setDescription(m_parent->m_calibrationAlgorithm->variableDescription(i));
         spatialVariableOutput->addGeometries(geometries);
         addOutput(spatialVariableOutput);
       }
