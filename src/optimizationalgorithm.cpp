@@ -22,14 +22,29 @@ QList<QSharedPointer<HCGeometry>> OptimizationAlgorithm::variableGeometries(int 
   return QList<QSharedPointer<HCGeometry>>();
 }
 
+QStringList OptimizationAlgorithm::variableIdentifiers(int index)
+{
+  return QStringList();
+}
+
 QList<QSharedPointer<HCGeometry>> OptimizationAlgorithm::objectiveGeometries(int index)
 {
   return QList<QSharedPointer<HCGeometry>>();
 }
 
+QStringList OptimizationAlgorithm::objectiveIdentifiers(int index)
+{
+  return QStringList();
+}
+
 QList<QSharedPointer<HCGeometry> > OptimizationAlgorithm::constraintGeometries(int index)
 {
   return QList<QSharedPointer<HCGeometry>>();
+}
+
+QStringList OptimizationAlgorithm::constraintIdentifiers(int index)
+{
+  return QStringList();
 }
 
 int OptimizationAlgorithm::numIndividuals() const

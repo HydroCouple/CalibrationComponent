@@ -14,7 +14,7 @@ class CALIBRATIONCOMPONENT_EXPORT NSGAIIAlgorithm : public OptimizationAlgorithm
 
     NSGAIIAlgorithm(QObject *parent);
 
-    ~NSGAIIAlgorithm();
+    virtual ~NSGAIIAlgorithm() override;
 
     int numVariables() const override;
 
@@ -26,6 +26,8 @@ class CALIBRATIONCOMPONENT_EXPORT NSGAIIAlgorithm : public OptimizationAlgorithm
 
     QList<QSharedPointer<HCGeometry>> variableGeometries(int index) override;
 
+    QStringList variableIdentifiers(int index) override;
+
     int numObjectives() const override;
 
     QString objectiveName(int index) const override;
@@ -35,6 +37,8 @@ class CALIBRATIONCOMPONENT_EXPORT NSGAIIAlgorithm : public OptimizationAlgorithm
     int getObjectiveIndex(const QString& objectiveName) const override;
 
     QList<QSharedPointer<HCGeometry>> objectiveGeometries(int index) override;
+
+    QStringList objectiveIdentifiers(int index) override;
 
     int numConstraints() const override;
 
@@ -46,6 +50,8 @@ class CALIBRATIONCOMPONENT_EXPORT NSGAIIAlgorithm : public OptimizationAlgorithm
 
     QList<QSharedPointer<HCGeometry>> constraintGeometries(int index) override;
 
+    QStringList constraintIdentifiers(int index) override;
+
     bool isDone() const override;
 
     void prepareForInputFileRead() override;
@@ -55,6 +61,8 @@ class CALIBRATIONCOMPONENT_EXPORT NSGAIIAlgorithm : public OptimizationAlgorithm
     bool readOptArg(const QString &line, int type,  QString &error);
 
     bool readOptArgGeometry(const QString &line, int type, QString &error);
+
+    bool readOptArgIdentifiers(const QString &line, int type, QString &error);
 
     virtual bool initialize(QStringList &errors) override;
 
@@ -116,6 +124,10 @@ class CALIBRATIONCOMPONENT_EXPORT NSGAIIAlgorithm : public OptimizationAlgorithm
     std::unordered_map<std::string, QList<QSharedPointer<HCGeometry>>> m_variableGeometries,
     m_objectiveGeometries,
     m_constraintGeometries;
+
+    std::unordered_map<std::string, QStringList> m_variableIdentifiers,
+    m_objectiveIdentifiers,
+    m_constraintIdentifiers;
 
     bool m_isDone;
 

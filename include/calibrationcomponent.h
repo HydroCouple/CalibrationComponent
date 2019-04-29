@@ -1,7 +1,6 @@
 #ifndef CALIBRATIONCOMPONENT_H
 #define CALIBRATIONCOMPONENT_H
 
-#include "calibrationcomponent.h"
 #include "calibrationcomponent_global.h"
 #include "core/abstractmodelcomponent.h"
 #include "composition/composition.h"
@@ -25,7 +24,6 @@ class CALIBRATIONCOMPONENT_EXPORT CalibrationComponent : public AbstractModelCom
 {
 
     Q_OBJECT
-
     Q_INTERFACES(HydroCouple::ICloneableModelComponent)
 
   public:
@@ -40,7 +38,7 @@ class CALIBRATIONCOMPONENT_EXPORT CalibrationComponent : public AbstractModelCom
     /*!
      * \brief ~CalibrationComponent
      */
-    virtual ~CalibrationComponent();
+    virtual ~CalibrationComponent() override;
 
     /*!
      * \brief validate validates this component model instance

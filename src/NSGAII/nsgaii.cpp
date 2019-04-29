@@ -31,9 +31,9 @@ NSGAIIAlgorithm::~NSGAIIAlgorithm()
     deallocate_memory_pop(m_NSGAIIProject, child_pop, m_NSGAIIProject->popsize);
     deallocate_memory_pop(m_NSGAIIProject, mixed_pop, 2 * m_NSGAIIProject->popsize);
 
-    free(parent_pop); parent_pop = NULL;
-    free(child_pop); child_pop = NULL;
-    free(mixed_pop); mixed_pop = NULL;
+    free(parent_pop); parent_pop = nullptr;
+    free(child_pop); child_pop = nullptr;
+    free(mixed_pop); mixed_pop = nullptr;
   }
 
   deleteProject();
@@ -75,6 +75,13 @@ QList<QSharedPointer<HCGeometry> > NSGAIIAlgorithm::variableGeometries(int index
   return m_variableGeometries[variableId.toStdString()];
 }
 
+QStringList NSGAIIAlgorithm::variableIdentifiers(int index)
+{
+  QString variableId = m_variableNames[index];
+  return m_variableIdentifiers[variableId.toStdString()];
+}
+
+
 int NSGAIIAlgorithm::numObjectives() const
 {
   return nobj;
@@ -109,6 +116,12 @@ QList<QSharedPointer<HCGeometry> > NSGAIIAlgorithm::objectiveGeometries(int inde
 {
   QString objectiveId = m_objectiveNames[index];
   return m_objectiveGeometries[objectiveId.toStdString()];
+}
+
+QStringList NSGAIIAlgorithm::objectiveIdentifiers(int index)
+{
+  QString variableId = m_objectiveNames[index];
+  return m_objectiveIdentifiers[variableId.toStdString()];
 }
 
 int NSGAIIAlgorithm::numConstraints() const
@@ -147,6 +160,12 @@ QList<QSharedPointer<HCGeometry>> NSGAIIAlgorithm::constraintGeometries(int inde
   return m_constraintGeometries[constraintId.toStdString()];
 }
 
+QStringList NSGAIIAlgorithm::constraintIdentifiers(int index)
+{
+  QString variableId = m_constraintNames[index];
+  return m_constraintIdentifiers[variableId.toStdString()];
+}
+
 bool NSGAIIAlgorithm::isDone() const
 {
   return m_isDone;
@@ -173,9 +192,9 @@ void NSGAIIAlgorithm::prepareForInputFileRead()
     deallocate_memory_pop(m_NSGAIIProject, child_pop, m_NSGAIIProject->popsize);
     deallocate_memory_pop(m_NSGAIIProject, mixed_pop, 2 * m_NSGAIIProject->popsize);
 
-    free(parent_pop); parent_pop = NULL;
-    free(child_pop); child_pop = NULL;
-    free(mixed_pop); mixed_pop = NULL;
+    free(parent_pop); parent_pop = nullptr;
+    free(child_pop); child_pop = nullptr;
+    free(mixed_pop); mixed_pop = nullptr;
   }
 
   m_inputFileInitialPop = "";
@@ -313,24 +332,20 @@ bool NSGAIIAlgorithm::processInputFileLine(const QString &currentFlag, const QSt
       }
       break;
     case 5:
-      {
-        if(!readOptArgGeometry(line, 1, error))
-        {
-          return false;
-        }
-      }
-      break;
     case 6:
-      {
-        if(!readOptArgGeometry(line, 2, error))
-        {
-          return false;
-        }
-      }
-      break;
     case 7:
       {
         if(!readOptArgGeometry(line, 2, error))
+        {
+          return false;
+        }
+      }
+      break;
+    case 9:
+    case 10:
+    case 11:
+      {
+        if(!readOptArgIdentifiers(line, 2, error))
         {
           return false;
         }
@@ -383,7 +398,6 @@ bool NSGAIIAlgorithm::readOptArg(const QString &line, int type, QString &error)
 {
   QStringList cols = TimeSeries::splitLine(line, m_delimiters);
 
-
   switch (type)
   {
     case 1:
@@ -412,13 +426,13 @@ bool NSGAIIAlgorithm::readOptArg(const QString &line, int type, QString &error)
           }
           else
           {
-            error = "Expected numerica values";
+            error = "Expected numerical values";
             return false;
           }
         }
         else
         {
-          error = "Expected 3 arguments";
+          error = "Expected 3 or more arguments";
           return false;
         }
       }
@@ -549,7 +563,55 @@ bool NSGAIIAlgorithm::readOptArgGeometry(const QString &line, int type, QString 
     return false;
   }
 
+  return true;
+}
 
+bool NSGAIIAlgorithm::readOptArgIdentifiers(const QString &line, int type, QString &error)
+{
+  QRegExp delim = QRegExp("(" + m_delimiters + "|\\\"|\\')+");
+  QStringList cols = line.split(delim,QString::SkipEmptyParts);
+
+  if(cols.size() > 1)
+  {
+    QString name = cols[0];
+
+    QStringList identifiers;
+
+    for(int i = 1; i < cols.size(); i++)
+      identifiers << cols[i];
+
+    switch (type)
+    {
+      case 1:
+        {
+          if(std::find(m_variableNames.begin() , m_variableNames.end(), name ) != m_variableNames.end())
+          {
+            m_variableIdentifiers[name.toStdString()] = identifiers;
+          }
+        }
+        break;
+      case 2:
+        {
+          if(std::find(m_objectiveNames.begin() , m_objectiveNames.end(), name ) != m_objectiveNames.end())
+          {
+            m_objectiveIdentifiers[name.toStdString()] = identifiers;
+          }
+        }
+        break;
+      case 3:
+        {
+          if(std::find(m_constraintNames.begin() , m_constraintNames.end(), name ) != m_constraintNames.end())
+          {
+            m_constraintIdentifiers[name.toStdString()] = identifiers;
+          }
+        }
+        break;
+    }
+  }
+  else
+  {
+    error = "Expects 2 or more arguments";
+  }
 
   return true;
 }
@@ -852,9 +914,9 @@ bool NSGAIIAlgorithm::finalize(QStringList &errors)
     deallocate_memory_pop(m_NSGAIIProject, child_pop, m_NSGAIIProject->popsize);
     deallocate_memory_pop(m_NSGAIIProject, mixed_pop, 2 * m_NSGAIIProject->popsize);
 
-    free(parent_pop); parent_pop = NULL;
-    free(child_pop); child_pop = NULL;
-    free(mixed_pop); mixed_pop = NULL;
+    free(parent_pop); parent_pop = nullptr;
+    free(child_pop); child_pop = nullptr;
+    free(mixed_pop); mixed_pop = nullptr;
   }
 
   m_isDone = false;
@@ -1079,7 +1141,7 @@ void NSGAIIAlgorithm::deleteProject()
   if(m_NSGAIIProject)
   {
     deallocate_memory_project(m_NSGAIIProject);
-    m_NSGAIIProject = NULL;
+    m_NSGAIIProject = nullptr;
   }
 }
 
@@ -1158,6 +1220,9 @@ const std::unordered_map<std::string, int> NSGAIIAlgorithm::m_inputFileFlags({
                                                                                {"[OBJECTIVE_GEOMETRIES]", 6},
                                                                                {"[CONSTRAINT_GEOMETRIES]", 7},
                                                                                {"[OUTPUT_FILES]", 8},
+                                                                               {"[VARIABLE_IDENTIFIERS]", 9},
+                                                                               {"[OBJECTIVE_IDENTIFIERS]", 10},
+                                                                               {"[CONSTRAINT_IDENTIFIERS]", 11},
                                                                              });
 const std::unordered_map<std::string, int> NSGAIIAlgorithm::m_optionsFlags({
                                                                              {"RANDOM_SEED", 1},

@@ -41,3 +41,47 @@ void SpatialVariableOutput::updateValues()
   std::vector<double> values(geometryCount(), value);
   setValues(0, geometryCount(), values.data());
 }
+
+
+IdBasedVariableOutput::IdBasedVariableOutput(const QString &variableId,
+                                             const QStringList& identifiers,
+                                             Dimension *identifierDimension,
+                                             Quantity *quantity,
+                                             CalibrationComponent *calibrationComponent):
+  IdBasedOutputDouble(variableId,
+                      identifiers,
+                      identifierDimension,
+                      quantity,
+                      calibrationComponent),
+  m_variableId(variableId),
+  m_calibrationComponent(calibrationComponent),
+  m_parentCalibrationComponent(nullptr)
+{
+
+  if(m_calibrationComponent->parent() == nullptr)
+  {
+    m_parentCalibrationComponent = m_calibrationComponent;
+  }
+  else
+  {
+    m_parentCalibrationComponent = dynamic_cast<CalibrationComponent*>(m_calibrationComponent->parent());
+  }
+
+  m_variableIndex = m_parentCalibrationComponent->calibrationAlgorithm()->getVariableIndex(variableId);
+}
+
+void IdBasedVariableOutput::updateValues(HydroCouple::IInput *querySpecifier)
+{
+  refreshAdaptedOutputs();
+}
+
+void IdBasedVariableOutput::updateValues()
+{
+  int indIndex = m_calibrationComponent->individualIndex();
+  Individual *ind =  m_parentCalibrationComponent->calibrationAlgorithm()->getIndividual(indIndex);
+  double value =  ind->variables()[m_variableIndex];
+  int numIds = identifiers().size();
+  std::vector<double> values(numIds, value);
+  setValues(0, numIds, values.data());
+}
+

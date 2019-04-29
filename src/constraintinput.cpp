@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "objectiveinput.h"
+#include "constraintinput.h"
 #include "calibrationcomponent.h"
 #include "core/dimension.h"
 #include "optimizationalgorithm.h"
@@ -13,13 +13,13 @@ using namespace HydroCouple::Spatial;
 using namespace HydroCouple::Temporal;
 using namespace HydroCouple::SpatioTemporal;
 
-SpatialObjectiveInput::SpatialObjectiveInput(const QString &objectiveId,
-                                             HydroCouple::Spatial::IGeometry::GeometryType geometryType,
-                                             Dimension *geometryDimension,
-                                             Quantity *quantity,
-                                             CalibrationComponent *calibrationComponent):
-  GeometryInputDouble(objectiveId, geometryType, geometryDimension, quantity, calibrationComponent),
-  m_objectiveId(objectiveId),
+SpatialConstraintInput::SpatialConstraintInput(const QString &constraintId,
+                                               HydroCouple::Spatial::IGeometry::GeometryType geometryType,
+                                               Dimension *geometryDimension,
+                                               Quantity *quantity,
+                                               CalibrationComponent *calibrationComponent):
+  GeometryInputDouble(constraintId, geometryType, geometryDimension, quantity, calibrationComponent),
+  m_constraintId(constraintId),
   m_calibrationComponent(calibrationComponent),
   m_parentCalibrationComponent(nullptr)
 {
@@ -32,15 +32,15 @@ SpatialObjectiveInput::SpatialObjectiveInput(const QString &objectiveId,
     m_parentCalibrationComponent = dynamic_cast<CalibrationComponent*>(m_calibrationComponent->parent());
   }
 
-  m_objectiveIndex = m_parentCalibrationComponent->calibrationAlgorithm()->getObjectiveIndex(m_objectiveId);
+  m_constraintIndex = m_parentCalibrationComponent->calibrationAlgorithm()->getConstraintIndex(m_constraintId);
 }
 
-SpatialObjectiveInput::~SpatialObjectiveInput()
+SpatialConstraintInput::~SpatialConstraintInput()
 {
 
 }
 
-bool SpatialObjectiveInput::setProvider(HydroCouple::IOutput *provider)
+bool SpatialConstraintInput::setProvider(HydroCouple::IOutput *provider)
 {
   m_geometryMapping.clear();
 
@@ -144,7 +144,7 @@ bool SpatialObjectiveInput::setProvider(HydroCouple::IOutput *provider)
   return false;
 }
 
-bool SpatialObjectiveInput::canConsume(HydroCouple::IOutput *provider, QString &message) const
+bool SpatialConstraintInput::canConsume(HydroCouple::IOutput *provider, QString &message) const
 {
   message = "";
 
@@ -173,7 +173,7 @@ bool SpatialObjectiveInput::canConsume(HydroCouple::IOutput *provider, QString &
   return false;
 }
 
-void SpatialObjectiveInput::retrieveValuesFromProvider()
+void SpatialConstraintInput::retrieveValuesFromProvider()
 {
   while (provider()->modelComponent()->status() == HydroCouple::IModelComponent::Updated)
   {
@@ -181,7 +181,7 @@ void SpatialObjectiveInput::retrieveValuesFromProvider()
   }
 }
 
-void SpatialObjectiveInput::applyData()
+void SpatialConstraintInput::applyData()
 {
   ITimeGeometryComponentDataItem *timeGeometryDataItem = nullptr;
   IGeometryComponentDataItem *geometryDataItem = nullptr;
@@ -199,7 +199,7 @@ void SpatialObjectiveInput::applyData()
     {
       double value = 0;
       timeGeometryDataItem->getValue(time, it.second, &value);
-      ind->objectives()[m_objectiveIndex] = value;
+      ind->constraints()[m_constraintIndex] = value;
     }
   }
   else if((geometryDataItem = dynamic_cast<IGeometryComponentDataItem*>(provider())))
@@ -208,7 +208,7 @@ void SpatialObjectiveInput::applyData()
     {
       double value = 0;
       geometryDataItem->getValue(it.second, &value);
-      ind->objectives()[m_objectiveIndex] = value;
+      ind->constraints()[m_constraintIndex] = value;
     }
   }
   else if((idbasedDataItem = dynamic_cast<IIdBasedComponentDataItem*>(provider())))
@@ -217,7 +217,7 @@ void SpatialObjectiveInput::applyData()
     {
       double value = 0;
       idbasedDataItem->getValue(it.second, &value);
-      ind->objectives()[m_objectiveIndex] = value;
+      ind->constraints()[m_constraintIndex] = value;
     }
   }
   else if((timeIdBasedDataItem = dynamic_cast<ITimeIdBasedComponentDataItem*>(provider())))
@@ -228,12 +228,12 @@ void SpatialObjectiveInput::applyData()
     {
       double value = 0;
       timeIdBasedDataItem->getValue(timeIndex, it.second, &value);
-      ind->objectives()[m_objectiveIndex] = value;
+      ind->constraints()[m_constraintIndex] = value;
     }
   }
 }
 
-bool SpatialObjectiveInput::equalsGeometry(IGeometry *geom1, IGeometry *geom2, double epsilon)
+bool SpatialConstraintInput::equalsGeometry(IGeometry *geom1, IGeometry *geom2, double epsilon)
 {
   if(geom1->geometryType() == geom2->geometryType())
   {
@@ -279,13 +279,13 @@ bool SpatialObjectiveInput::equalsGeometry(IGeometry *geom1, IGeometry *geom2, d
 
 
 
-IdBasedObjectiveInput::IdBasedObjectiveInput(const QString &objectiveId,
-                                             const QStringList& identifiers,
-                                             Dimension *identifierDimension,
-                                             Quantity *quantity,
-                                             CalibrationComponent *calibrationComponent):
-  IdBasedInputDouble(objectiveId, identifiers, identifierDimension, quantity, calibrationComponent),
-  m_objectiveId(objectiveId),
+IdBasedConstraintInput::IdBasedConstraintInput(const QString &constraintId,
+                                               const QStringList& identifiers,
+                                               Dimension *identifierDimension,
+                                               Quantity *quantity,
+                                               CalibrationComponent *calibrationComponent):
+  IdBasedInputDouble(constraintId, identifiers, identifierDimension, quantity, calibrationComponent),
+  m_constraintId(constraintId),
   m_calibrationComponent(calibrationComponent),
   m_parentCalibrationComponent(nullptr)
 {
@@ -298,15 +298,15 @@ IdBasedObjectiveInput::IdBasedObjectiveInput(const QString &objectiveId,
     m_parentCalibrationComponent = dynamic_cast<CalibrationComponent*>(m_calibrationComponent->parent());
   }
 
-  m_objectiveIndex = m_parentCalibrationComponent->calibrationAlgorithm()->getObjectiveIndex(m_objectiveId);
+  m_constraintIndex = m_parentCalibrationComponent->calibrationAlgorithm()->getObjectiveIndex(m_constraintId);
 }
 
-IdBasedObjectiveInput::~IdBasedObjectiveInput()
+IdBasedConstraintInput::~IdBasedConstraintInput()
 {
 
 }
 
-bool IdBasedObjectiveInput::setProvider(HydroCouple::IOutput *provider)
+bool IdBasedConstraintInput::setProvider(HydroCouple::IOutput *provider)
 {
   m_idMapping.clear();
 
@@ -329,7 +329,7 @@ bool IdBasedObjectiveInput::setProvider(HydroCouple::IOutput *provider)
 
           for(int j = 0 ; j < ids.size(); j++)
           {
-             QString id = ids[j];
+            QString id = ids[j];
 
             if(!QString::compare(providerGeometry->id(), id))
             {
@@ -350,7 +350,7 @@ bool IdBasedObjectiveInput::setProvider(HydroCouple::IOutput *provider)
 
           for(int j = 0 ; j < ids.size(); j++)
           {
-             QString id = ids[j];
+            QString id = ids[j];
 
             if(!QString::compare(providerGeometry->id(), id))
             {
@@ -373,7 +373,7 @@ bool IdBasedObjectiveInput::setProvider(HydroCouple::IOutput *provider)
 
           for(int j = 0 ; j < ids.size(); j++)
           {
-             QString id = ids[j];
+            QString id = ids[j];
 
             if(!QString::compare(pId, id))
             {
@@ -396,7 +396,7 @@ bool IdBasedObjectiveInput::setProvider(HydroCouple::IOutput *provider)
 
           for(int j = 0 ; j < ids.size(); j++)
           {
-             QString id = ids[j];
+            QString id = ids[j];
 
             if(!QString::compare(pId, id))
             {
@@ -414,7 +414,7 @@ bool IdBasedObjectiveInput::setProvider(HydroCouple::IOutput *provider)
   return false;
 }
 
-bool IdBasedObjectiveInput::canConsume(HydroCouple::IOutput *provider, QString &message) const
+bool IdBasedConstraintInput::canConsume(HydroCouple::IOutput *provider, QString &message) const
 {
   message = "";
 
@@ -443,7 +443,7 @@ bool IdBasedObjectiveInput::canConsume(HydroCouple::IOutput *provider, QString &
   return false;
 }
 
-void IdBasedObjectiveInput::retrieveValuesFromProvider()
+void IdBasedConstraintInput::retrieveValuesFromProvider()
 {
   while (provider()->modelComponent()->status() == HydroCouple::IModelComponent::Updated)
   {
@@ -451,7 +451,7 @@ void IdBasedObjectiveInput::retrieveValuesFromProvider()
   }
 }
 
-void IdBasedObjectiveInput::applyData()
+void IdBasedConstraintInput::applyData()
 {
   ITimeGeometryComponentDataItem *timeGeometryDataItem = nullptr;
   IGeometryComponentDataItem *geometryDataItem = nullptr;
@@ -469,7 +469,7 @@ void IdBasedObjectiveInput::applyData()
     {
       double value = 0;
       timeGeometryDataItem->getValue(time, it.second, &value);
-      ind->objectives()[m_objectiveIndex] = value;
+      ind->constraints()[m_constraintIndex] = value;
     }
   }
   else if((geometryDataItem = dynamic_cast<IGeometryComponentDataItem*>(provider())))
@@ -478,7 +478,7 @@ void IdBasedObjectiveInput::applyData()
     {
       double value = 0;
       geometryDataItem->getValue(it.second, &value);
-      ind->objectives()[m_objectiveIndex] = value;
+      ind->constraints()[m_constraintIndex] = value;
     }
   }
   else if((idbasedDataItem = dynamic_cast<IIdBasedComponentDataItem*>(provider())))
@@ -487,7 +487,7 @@ void IdBasedObjectiveInput::applyData()
     {
       double value = 0;
       idbasedDataItem->getValue(it.second, &value);
-      ind->objectives()[m_objectiveIndex] = value;
+      ind->constraints()[m_constraintIndex] = value;
     }
   }
   else if((timeIdBasedDataItem = dynamic_cast<ITimeIdBasedComponentDataItem*>(provider())))
@@ -498,7 +498,7 @@ void IdBasedObjectiveInput::applyData()
     {
       double value = 0;
       timeIdBasedDataItem->getValue(time, it.second, &value);
-      ind->objectives()[m_objectiveIndex] = value;
+      ind->constraints()[m_constraintIndex] = value;
     }
   }
 }

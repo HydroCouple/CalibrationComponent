@@ -1,5 +1,5 @@
-#ifndef OBJECTIVEINPUT_H
-#define OBJECTIVEINPUT_H
+#ifndef CONSTRAINTINPUT_H
+#define CONSTRAINTINPUT_H
 
 #include "calibrationcomponent_global.h"
 #include "spatial/geometryexchangeitems.h"
@@ -10,20 +10,20 @@
 class CalibrationComponent;
 class Quantity;
 
-class CALIBRATIONCOMPONENT_EXPORT SpatialObjectiveInput:
+class CALIBRATIONCOMPONENT_EXPORT SpatialConstraintInput:
     public GeometryInputDouble
 {
     Q_OBJECT
 
   public:
 
-    SpatialObjectiveInput(const QString &objectiveId,
+    SpatialConstraintInput(const QString &constraintId,
                           HydroCouple::Spatial::IGeometry::GeometryType geometryType,
                           Dimension *geometryDimension,
                           Quantity *quantity,
                           CalibrationComponent *calibrationComponent);
 
-    virtual ~SpatialObjectiveInput() override;
+    virtual ~SpatialConstraintInput() override;
 
     bool setProvider(HydroCouple::IOutput *provider) override;
 
@@ -39,28 +39,28 @@ class CALIBRATIONCOMPONENT_EXPORT SpatialObjectiveInput:
 
   private:
 
-    int m_objectiveIndex;
-    QString m_objectiveId;
+    int m_constraintIndex;
+    QString m_constraintId;
     CalibrationComponent *m_calibrationComponent;
     CalibrationComponent *m_parentCalibrationComponent;
     std::unordered_map<int,int> m_geometryMapping;
 
 };
 
-class CALIBRATIONCOMPONENT_EXPORT IdBasedObjectiveInput:
+class CALIBRATIONCOMPONENT_EXPORT IdBasedConstraintInput:
     public IdBasedInputDouble
 {
     Q_OBJECT
 
   public:
 
-    IdBasedObjectiveInput(const QString &objectiveId,
+    IdBasedConstraintInput(const QString &constraintId,
                           const QStringList& identifiers,
                           Dimension *identifierDimension,
                           Quantity *quantity,
                           CalibrationComponent *calibrationComponent);
 
-    virtual ~IdBasedObjectiveInput() override;
+    virtual ~IdBasedConstraintInput() override;
 
     bool setProvider(HydroCouple::IOutput *provider) override;
 
@@ -72,8 +72,8 @@ class CALIBRATIONCOMPONENT_EXPORT IdBasedObjectiveInput:
 
   private:
 
-    int m_objectiveIndex;
-    QString m_objectiveId;
+    int m_constraintIndex;
+    QString m_constraintId;
     CalibrationComponent *m_calibrationComponent;
     CalibrationComponent *m_parentCalibrationComponent;
     std::unordered_map<int,int> m_idMapping;
@@ -81,4 +81,5 @@ class CALIBRATIONCOMPONENT_EXPORT IdBasedObjectiveInput:
 };
 
 
-#endif // OBJECTIVEINPUT_H
+
+#endif // CONSTRAINTINPUT_H

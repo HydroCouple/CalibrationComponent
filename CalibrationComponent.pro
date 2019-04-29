@@ -43,7 +43,8 @@ INCLUDEPATH += .\
 
 HEADERS += ./include/stdafx.h\
            ./include/calibrationcomponent_global.h \
-           ./include/calibrationcomponent.h \ 
+           ./include/calibrationcomponent.h \  \
+           ./include/constraintinput.h \
            ./include/calibrationcomponentinfo.h \
            ./include/NSGAII/nsgaii.h \
            ./include/optimizationalgorithm.h \
@@ -80,7 +81,8 @@ SOURCES +=./src/stdafx.cpp \
           ./src/NSGAII/tourselect.c \
           ./src/triggercomponentinput.cpp \
           ./src/variableoutput.cpp \
-          ./src/objectiveinput.cpp
+          ./src/objectiveinput.cpp \
+          ./src/constraintinput.cpp
 
 macx{
 

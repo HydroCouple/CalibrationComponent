@@ -14,7 +14,7 @@ class CALIBRATIONCOMPONENT_EXPORT TriggerComponentInput : public AbstractInput
 
     TriggerComponentInput(const QString &id, CalibrationComponent *modelComponent);
 
-    virtual ~TriggerComponentInput();
+    virtual ~TriggerComponentInput() override;
 
     int dimensionLength(const std::vector<int> &dimensionIndexes) const override;
 

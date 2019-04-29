@@ -1,7 +1,6 @@
 #ifndef CALIBRATIONCOMPONENTINFO_H
 #define CALIBRATIONCOMPONENTINFO_H
 
-
 #include "calibrationcomponent_global.h"
 #include "core/abstractmodelcomponentinfo.h"
 
@@ -15,7 +14,7 @@ class CALIBRATIONCOMPONENT_EXPORT CalibrationComponentInfo : public AbstractMode
 
     CalibrationComponentInfo(QObject *parent = nullptr);
 
-    virtual ~CalibrationComponentInfo();
+    virtual ~CalibrationComponentInfo() override;
 
     HydroCouple::IModelComponent* createComponentInstance() override;
 };

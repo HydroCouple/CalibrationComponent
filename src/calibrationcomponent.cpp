@@ -14,6 +14,7 @@
 #include "core/unit.h"
 #include "variableoutput.h"
 #include "objectiveinput.h"
+#include "constraintinput.h"
 #include "spatial/geometry.h"
 
 #include <QTextStream>
@@ -446,6 +447,7 @@ void CalibrationComponent::createInputFileArguments()
 void CalibrationComponent::createInputs()
 {
   createObjectiveFunctionInputs();
+  createConstraintInputs();
 }
 
 void CalibrationComponent::createObjectiveFunctionInputs()
@@ -457,8 +459,24 @@ void CalibrationComponent::createObjectiveFunctionInputs()
     for(int i = 0; i < numObjectives; i++)
     {
       QList<QSharedPointer<HCGeometry>> geometries = m_calibrationAlgorithm->objectiveGeometries(i);
+      QStringList identifiers = m_calibrationAlgorithm->objectiveIdentifiers(i);
 
-      if(geometries.size())
+      if(identifiers.size())
+      {
+        QString objectiveId = m_calibrationAlgorithm->objectiveName(i);
+        Dimension *objectiveIdenfiersDimension = new Dimension("ObjectiveIdentifierDimension",this);
+
+        IdBasedObjectiveInput *idBasedVariableInput = new IdBasedObjectiveInput(objectiveId,
+                                                                                identifiers,
+                                                                                objectiveIdenfiersDimension,
+                                                                                m_defaultQuantity,
+                                                                                this);
+
+        idBasedVariableInput->setCaption(m_calibrationAlgorithm->objectiveDescription(i));
+        idBasedVariableInput->setDescription(m_calibrationAlgorithm->objectiveDescription(i));
+        addInput(idBasedVariableInput);
+      }
+      else if(geometries.size())
       {
         QString objectiveId = m_calibrationAlgorithm->objectiveName(i);
         SpatialObjectiveInput *spatialVariableInput = new SpatialObjectiveInput(objectiveId, geometries[0]->geometryType(), m_geometryDimension, m_defaultQuantity,this);
@@ -466,10 +484,6 @@ void CalibrationComponent::createObjectiveFunctionInputs()
         spatialVariableInput->setDescription(m_calibrationAlgorithm->objectiveDescription(i));
         spatialVariableInput->addGeometries(geometries);
         addInput(spatialVariableInput);
-      }
-      else
-      {
-
       }
     }
   }
@@ -481,8 +495,24 @@ void CalibrationComponent::createObjectiveFunctionInputs()
     for(int i = 0; i < numObjectives; i++)
     {
       QList<QSharedPointer<HCGeometry>> geometries = m_parent->m_calibrationAlgorithm->objectiveGeometries(i);
+      QStringList identifiers = m_parent->m_calibrationAlgorithm->objectiveIdentifiers(i);
 
-      if(geometries.size())
+      if(identifiers.size())
+      {
+        QString objectiveId = m_calibrationAlgorithm->objectiveName(i);
+        Dimension *objectiveIdenfiersDimension = new Dimension("ObjectiveIdentifierDimension",this);
+
+        IdBasedObjectiveInput *idBasedVariableInput = new IdBasedObjectiveInput(objectiveId,
+                                                                                identifiers,
+                                                                                objectiveIdenfiersDimension,
+                                                                                m_defaultQuantity,
+                                                                                this);
+
+        idBasedVariableInput->setCaption(m_calibrationAlgorithm->objectiveDescription(i));
+        idBasedVariableInput->setDescription(m_calibrationAlgorithm->objectiveDescription(i));
+        addInput(idBasedVariableInput);
+      }
+      else if(geometries.size())
       {
         QString objectiveId = m_parent->m_calibrationAlgorithm->objectiveName(i);
         SpatialObjectiveInput *spatialVariableInput = new SpatialObjectiveInput(objectiveId, geometries[0]->geometryType(), m_geometryDimension, m_defaultQuantity,this);
@@ -491,9 +521,80 @@ void CalibrationComponent::createObjectiveFunctionInputs()
         spatialVariableInput->addGeometries(geometries);
         addInput(spatialVariableInput);
       }
-      else
-      {
+    }
+  }
+}
 
+void CalibrationComponent::createConstraintInputs()
+{
+  if(m_parent == nullptr)
+  {
+    int numConstraints = m_calibrationAlgorithm->numConstraints();
+
+    for(int i = 0; i < numConstraints; i++)
+    {
+      QList<QSharedPointer<HCGeometry>> geometries = m_calibrationAlgorithm->constraintGeometries(i);
+      QStringList identifiers = m_calibrationAlgorithm->constraintIdentifiers(i);
+
+      if(identifiers.size())
+      {
+        QString constraintId = m_calibrationAlgorithm->constraintName(i);
+        Dimension *constraintIdenfiersDimension = new Dimension("ConstraintIdentifierDimension",this);
+
+        IdBasedConstraintInput *idBasedConstraintInput = new IdBasedConstraintInput(constraintId,
+                                                                                identifiers,
+                                                                                constraintIdenfiersDimension,
+                                                                                m_defaultQuantity,
+                                                                                this);
+
+        idBasedConstraintInput->setCaption(m_calibrationAlgorithm->constraintDescription(i));
+        idBasedConstraintInput->setDescription(m_calibrationAlgorithm->constraintDescription(i));
+        addInput(idBasedConstraintInput);
+      }
+      else if(geometries.size())
+      {
+        QString constraintId = m_calibrationAlgorithm->constraintName(i);
+        SpatialConstraintInput *spatialConstraintInput = new SpatialConstraintInput(constraintId, geometries[0]->geometryType(), m_geometryDimension, m_defaultQuantity,this);
+        spatialConstraintInput->setCaption(m_calibrationAlgorithm->constraintDescription(i));
+        spatialConstraintInput->setDescription(m_calibrationAlgorithm->constraintDescription(i));
+        spatialConstraintInput->addGeometries(geometries);
+        addInput(spatialConstraintInput);
+      }
+    }
+  }
+  else
+  {
+
+    int numConstraints = m_parent->m_calibrationAlgorithm->numConstraints();
+
+    for(int i = 0; i < numConstraints; i++)
+    {
+      QList<QSharedPointer<HCGeometry>> geometries = m_parent->m_calibrationAlgorithm->constraintGeometries(i);
+      QStringList identifiers = m_parent->m_calibrationAlgorithm->constraintIdentifiers(i);
+
+      if(identifiers.size())
+      {
+        QString constraintId = m_calibrationAlgorithm->objectiveName(i);
+        Dimension *constraintIdenfiersDimension = new Dimension("ConstraintIdentifierDimension",this);
+
+        IdBasedConstraintInput *idBasedConstraintInput = new IdBasedConstraintInput(constraintId,
+                                                                                identifiers,
+                                                                                constraintIdenfiersDimension,
+                                                                                m_defaultQuantity,
+                                                                                this);
+
+        idBasedConstraintInput->setCaption(m_calibrationAlgorithm->constraintDescription(i));
+        idBasedConstraintInput->setDescription(m_calibrationAlgorithm->constraintDescription(i));
+        addInput(idBasedConstraintInput);
+      }
+      else if(geometries.size())
+      {
+        QString constraintId = m_parent->m_calibrationAlgorithm->constraintName(i);
+        SpatialConstraintInput *spatialConstraintInput = new SpatialConstraintInput(constraintId, geometries[0]->geometryType(), m_geometryDimension, m_defaultQuantity,this);
+        spatialConstraintInput->setCaption(m_parent->m_calibrationAlgorithm->constraintDescription(i));
+        spatialConstraintInput->setDescription(m_parent->m_calibrationAlgorithm->constraintDescription(i));
+        spatialConstraintInput->addGeometries(geometries);
+        addInput(spatialConstraintInput);
       }
     }
   }
@@ -513,8 +614,24 @@ void CalibrationComponent::createVariableOutputs()
     for(int i = 0; i < numVariables; i++)
     {
       QList<QSharedPointer<HCGeometry>> geometries = m_calibrationAlgorithm->variableGeometries(i);
+      QStringList identifiers = m_calibrationAlgorithm->variableIdentifiers(i);
 
-      if(geometries.size())
+      if(identifiers.size())
+      {
+        QString variableId = m_calibrationAlgorithm->variableName(i);
+        Dimension *variableIdenfiersDimension = new Dimension("VariableIdentifierDimension",this);
+
+        IdBasedVariableOutput *idBasedVariableOutput = new IdBasedVariableOutput(variableId,
+                                                                                identifiers,
+                                                                                variableIdenfiersDimension,
+                                                                                m_defaultQuantity,
+                                                                                this);
+
+        idBasedVariableOutput->setCaption(m_calibrationAlgorithm->objectiveDescription(i));
+        idBasedVariableOutput->setDescription(m_calibrationAlgorithm->objectiveDescription(i));
+        addOutput(idBasedVariableOutput);
+      }
+      else if(geometries.size())
       {
         QString variableId = m_calibrationAlgorithm->variableName(i);
         SpatialVariableOutput *spatialVariableOutput = new SpatialVariableOutput(variableId, geometries[0]->geometryType(), m_geometryDimension, m_defaultQuantity,this);
@@ -522,10 +639,6 @@ void CalibrationComponent::createVariableOutputs()
         spatialVariableOutput->setDescription(m_calibrationAlgorithm->variableDescription(i));
         spatialVariableOutput->addGeometries(geometries);
         addOutput(spatialVariableOutput);
-      }
-      else
-      {
-
       }
     }
   }
@@ -537,8 +650,24 @@ void CalibrationComponent::createVariableOutputs()
     for(int i = 0; i < numVariables; i++)
     {
       QList<QSharedPointer<HCGeometry>> geometries = m_parent->m_calibrationAlgorithm->variableGeometries(i);
+      QStringList identifiers = m_calibrationAlgorithm->variableIdentifiers(i);
 
-      if(geometries.size())
+      if(identifiers.size())
+      {
+        QString variableId = m_calibrationAlgorithm->variableName(i);
+        Dimension *variableIdenfiersDimension = new Dimension("VariableIdentifierDimension",this);
+
+        IdBasedVariableOutput *idBasedVariableOutput = new IdBasedVariableOutput(variableId,
+                                                                                identifiers,
+                                                                                variableIdenfiersDimension,
+                                                                                m_defaultQuantity,
+                                                                                this);
+
+        idBasedVariableOutput->setCaption(m_calibrationAlgorithm->objectiveDescription(i));
+        idBasedVariableOutput->setDescription(m_calibrationAlgorithm->objectiveDescription(i));
+        addOutput(idBasedVariableOutput);
+      }
+      else if(geometries.size())
       {
         QString variableId = m_parent->m_calibrationAlgorithm->variableName(i);
         SpatialVariableOutput *spatialVariableOutput = new SpatialVariableOutput(variableId, geometries[0]->geometryType(), m_geometryDimension, m_defaultQuantity,this);
@@ -547,10 +676,7 @@ void CalibrationComponent::createVariableOutputs()
         spatialVariableOutput->addGeometries(geometries);
         addOutput(spatialVariableOutput);
       }
-      else
-      {
 
-      }
     }
 
   }
